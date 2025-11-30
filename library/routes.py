@@ -1,7 +1,7 @@
-from market import app, db
+from library import app, db
 from flask import render_template, redirect, url_for, flash, request
-from market.models import Book, User, Borrow
-from market.forms import RegisterForm, LoginForm, BorrowBookForm, ReturnBookForm
+from library.models import Book, User, Borrow
+from library.forms import RegisterForm, LoginForm, BorrowBookForm, ReturnBookForm
 from flask_login import login_user, logout_user, login_required, current_user
 from datetime import datetime, timedelta
 
@@ -81,7 +81,7 @@ def library_page():
         current_borrows = Borrow.query.filter_by(user_id=current_user.id, return_date=None).all()
         owned_books = [borrow.book for borrow in current_borrows]
 
-        return render_template('market.html', items=books, purchase_form=borrow_form, owned_items=owned_books, selling_form=return_form)
+        return render_template('library.html', items=books, purchase_form=borrow_form, owned_items=owned_books, selling_form=return_form)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register_page():

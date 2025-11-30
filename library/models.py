@@ -1,4 +1,4 @@
-from market import db, login_manager, bcrypt
+from library import db, login_manager, bcrypt
 from flask_login import UserMixin
 from datetime import datetime
 

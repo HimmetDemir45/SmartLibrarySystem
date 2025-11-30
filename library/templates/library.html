@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}
+    Library Catalog
+{% endblock %}
+{% block content %}
+
+    <div class="row" style="margin-top:20px; margin-left:20px">
+        <div class="col-8">
+            <h2>Kütüphane Kataloğu</h2>
+            <p>Ödünç almak istediğiniz kitabı seçiniz</p>
+            <br>
+            <table class="table table-hover table-dark">
+                <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Kitap Adı</th>
+                    <th scope="col">Yazar</th>
+                    <th scope="col">Kategori</th>
+                    <th scope="col">Durum</th>
+                    <th scope="col">İşlemler</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in items %}
+                    {% include 'includes/items_modals.html' %}
+                    <tr>
+                        <td>{{ item.id }}</td>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.author.name }}</td>
+                        <td>{{ item.category.name }}</td>
+                        <td>
+                            {% if item.is_available %}
+                                <span class="badge badge-success">Müsait</span>
+                            {% else %}
+                                <span class="badge badge-danger">Ödünç Verildi</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="btn btn-outline btn-info" data-toggle="modal" data-target="#Modal-MoreInfo-{{ item.id }}">Detay</button>
+                            {% if item.is_available %}
+                                <button class="btn btn-outline btn-success" data-toggle="modal" data-target="#Modal-PurchaseConfirm-{{ item.id }}">Ödünç Al</button>
+                            {% else %}
+                                <button class="btn btn-outline btn-secondary" disabled>Müsait Değil</button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="col-4">
+            <h2>Üzerimdeki Kitaplar</h2>
+            <p>İade etmek için butona tıklayınız</p>
+            <br>
+            <div class="row">
+                {% for owned_item in owned_items %}
+                    {% include 'includes/owned_items_modals.html' %}
+                    <div class="col-md-6">
+                        <div style="margin-bottom: 5px" class="card text-center bg-dark">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ owned_item.name }}</h5>
+                                <button type="button" class="btn btn-outline-danger" style="margin-bottom: 5px"
+                                        data-toggle="modal" data-target="#Modal-SellingConfirm-{{ owned_item.id }}">
+                                    İade Et
+                                </button>
+                                <p class="card-text"><small>
+                                    Yazar: {{ owned_item.author.name }}
+                                </small></p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
