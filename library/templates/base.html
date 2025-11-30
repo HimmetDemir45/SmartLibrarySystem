@@ -1,89 +1,157 @@
 <!doctype html>
 <html lang="en">
-   <head>
-      <!-- Required meta tags -->
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-      <!-- Bootstrap CSS -->
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
-      <title>
-          {% block title %}
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-          {% endblock %}
-      </title>
-   </head>
-   <body>
-    <nav class="navbar navbar-expand-md navbar-dark bg-dark">
-      <a class="navbar-brand" href="#">Library</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+    <title>
+        {% block title %}
+        {% endblock %}
+    </title>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #212121;
+            color: white;
+        }
+
+        /* --- NAVIGASYON (ÜST MENÜ) TASARIMI --- */
+        .navbar-custom {
+            background-color: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 15px 20px;
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            letter-spacing: 1px;
+            color: #fff !important;
+            text-transform: uppercase;
+        }
+
+        .navbar-brand:hover {
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.7) !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-left: 10px;
+        }
+
+        .nav-link:hover {
+            color: #00d2ff !important;
+            text-shadow: 0 0 15px rgba(0, 210, 255, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .nav-link.active {
+            color: #00d2ff !important;
+            border-bottom: 2px solid #00d2ff;
+        }
+
+        .budget-icon {
+            color: #00d2ff;
+            margin-right: 5px;
+        }
+
+        .logout-icon {
+            margin-right: 5px;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover .logout-icon {
+            color: #ff4d4d;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-md navbar-dark fixed-top navbar-custom">
+    <a class="navbar-brand" href="{{ url_for('home_page') }}">
+        <i class="fas fa-book-reader" style="color: #00d2ff; margin-right: 8px;"></i>
+        AKILLI KÜTÜPHANE
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-                <a class="nav-link" href="{{ url_for('home_page') }}">Home <span class="sr-only">(current)</span></a>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('home_page') }}">
+                    <i class="fas fa-home" style="margin-right: 5px;"></i>
+                    Ana Sayfa
+                </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('library_page') }}">Kütüphane</a>
+                <a class="nav-link" href="{{ url_for('library_page') }}">
+                    <i class="fas fa-book-open" style="margin-right: 5px;"></i>
+                    Katalog
+                </a>
             </li>
         </ul>
-          {% if current_user.is_authenticated %}
+        {% if current_user.is_authenticated %}
             <ul class="navbar-nav">
                 <li class="nav-item">
                     <a class="nav-link" style="color: lawngreen; font-weight: bold">
-                        <i class="fas fa-coins"></i>
-                        {{ current_user.prettier_budget }}
+                        <i class="fas fa-user budget-icon"></i>
+                        {{ current_user.username }}
+                        {% if current_user.is_admin %}
+                            <span class="badge badge-danger ml-1">Admin</span>
+                        {% endif %}
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link">Welcome, {{ current_user.username }}</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('logout_page') }}">Logout</a>
+                    <a class="nav-link" href="{{ url_for('logout_page') }}">
+                        <i class="fas fa-sign-out-alt logout-icon"></i>
+                        Çıkış Yap
+                    </a>
                 </li>
             </ul>
-          {% else %}
+        {% else %}
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('login_page') }}">Login</a>
+                    <a class="nav-link" href="{{ url_for('login_page') }}">
+                        <i class="fas fa-sign-in-alt" style="margin-right: 5px;"></i>
+                        Giriş Yap
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('register_page') }}">Register</a>
+                    <a class="nav-link" href="{{ url_for('register_page') }}">
+                        <i class="fas fa-user-plus" style="margin-right: 5px;"></i>
+                        Kayıt Ol
+                    </a>
                 </li>
             </ul>
-          {% endif %}
-      </div>
-    </nav>
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-           {% for category, message in messages %}
-              <div class="alert alert-{{ category }}">
-                  <button type="button" class="m1-2 mb-1 close" data-dismiss="alert" aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
-                  </button>
-                  {{ message }}
-              </div>
-           {% endfor %}
         {% endif %}
-      {% endwith %}
-      {% block content %}
+    </div>
+</nav>
 
-      {% endblock %}
-      <!-- Future Content here -->
+<div style="margin-top: 80px;">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show container text-center" role="alert" style="margin-top: 10px;">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
 
+{% block content %}
 
+{% endblock %}
 
-      <!-- Optional JavaScript -->
-      <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-      <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
-      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
-   </body>
-   <style>
-      body {
-      background-color: #212121;
-      color: white
-      }
-   </style>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+</body>
 </html>

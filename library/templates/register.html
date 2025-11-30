@@ -1,40 +1,120 @@
 {% extends 'base.html' %}
 {% block title %}
-    Register Page
+    Kayıt Ol - Akıllı Kütüphane
 {% endblock %}
 
 {% block content %}
-<body class="text-center">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column; /* İçeriği alt alta hizala */
+            justify-content: center; /* Dikeyde ortala */
+            align-items: center;    /* Yatayda ortala */
+            padding-top: 40px;      /* Navbar payı */
+        }
+
+        .card-custom {
+            background: rgba(255, 255, 255, 0.05); /* Yarı saydam */
+            backdrop-filter: blur(10px); /* Buzlu cam */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            padding: 40px;
+            color: white;
+        }
+
+        .neon-logo {
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .neon-logo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
+        }
+
+        .form-control {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #444;
+            color: white;
+        }
+
+        .form-control:focus {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+            border-color: cyan;
+        }
+
+        /* Placeholder (Kutu içindeki silik yazı) rengini açalım */
+        .form-control::placeholder {
+            color: #aaa;
+            opacity: 1;
+        }
+
+        .btn-custom {
+            background: linear-gradient(45deg, #00d2ff, #3a7bd5);
+            border: none;
+            color: white;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 210, 255, 0.4);
+        }
+    </style>
+
     <div class="container">
-        <form method="POST" class="form-register" style="color:white">
-            {{ form.hidden_tag() }}
-            <img class="mb-4" src=foto.png alt="">
-            <h1 class="h3 mb-3 font-weight-normal">
-                Please Create your Account
-            </h1>
-            <br>
-            {{ form.username.label() }}
-            {{ form.username(class="form-control", placeholder="User Name") }}
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card-custom text-center">
+                    <form method="POST" class="form-register">
+                        {{ form.hidden_tag() }}
 
-            {{ form.email_address.label() }}
-            {{ form.email_address(class="form-control", placeholder="Email Address") }}
+                        <img class="mb-4 neon-logo" src="{{ url_for('static', filename='foto.png') }}" alt="Library Logo" width="120" height="120">
 
-            {{ form.password1.label() }}
-            {{ form.password1(class="form-control", placeholder="Password") }}
+                        <h1 class="h3 mb-3 font-weight-normal" style="letter-spacing: 2px;">
+                            KAYIT OL
+                        </h1>
 
-            {{ form.password2.label() }}
-            {{ form.password2(class="form-control", placeholder="Confirm Password") }}
+                        <div class="form-group text-left">
+                            <label style="color:#ccc">Kullanıcı Adı</label>
+                            {{ form.username(class="form-control", placeholder="Kullanıcı adı belirleyin") }}
+                        </div>
 
-            <br>
+                        <div class="form-group text-left">
+                            <label style="color:#ccc">Email Adresi</label>
+                            {{ form.email_address(class="form-control", placeholder="Email adresiniz") }}
+                        </div>
 
-            <div class="checkbox mb-3">
-               <h6>Already have an account?</h6>
-               <a class="btn btn-sm btn-secondary" href="{{ url_for('login_page') }}">Login</a>
+                        <div class="form-group text-left">
+                            <label style="color:#ccc">Şifre</label>
+                            {{ form.password1(class="form-control", placeholder="Şifreniz") }}
+                        </div>
+
+                        <div class="form-group text-left">
+                            <label style="color:#ccc">Şifre Tekrar</label>
+                            {{ form.password2(class="form-control", placeholder="Şifrenizi doğrulayın") }}
+                        </div>
+
+                        <br>
+
+                        <div class="checkbox mb-3">
+                            <small style="color:#aaa">Zaten bir hesabınız var mı?</small>
+                            <br>
+                            <a class="btn btn-sm btn-outline-light mt-2" href="{{ url_for('login_page') }}">Giriş Yap</a>
+                        </div>
+
+                        {{ form.submit(class="btn btn-lg btn-block btn-custom", value="Hesap Oluştur") }}
+
+                    </form>
+                </div>
             </div>
-
-            {{ form.submit(class="btn btn-lg btn-block btn-primary") }}
-
-        </form>
+        </div>
     </div>
-</body>
 {% endblock %}

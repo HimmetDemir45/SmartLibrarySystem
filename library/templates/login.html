@@ -1,38 +1,103 @@
 {% extends 'base.html' %}
 {% block title %}
-    Register Page
+    Giriş Yap - Akıllı Kütüphane
 {% endblock %}
 
 {% block content %}
-    <body class="text-center">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column; /* Alt alta diz (Uyarı ve Kart için) */
+            justify-content: center; /* Dikeyde TAM ORTALA */
+            align-items: center;    /* Yatayda TAM ORTALA */
+            padding-top: 40px;      /* Navbar'ın altında kalmasın diye minik bir güvenlik payı */
+        }
+
+        .card-custom {
+            background: rgba(255, 255, 255, 0.05); /* Yarı saydam beyaz */
+            backdrop-filter: blur(10px); /* Arka planı buzlu cam gibi yap */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); /* Derinlik gölgesi */
+            padding: 40px;
+            color: white;
+        }
+
+        .neon-logo {
+            border-radius: 50%; /* Yuvarlak yap */
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3); /* Mavi neon parlama */
+            transition: transform 0.3s ease;
+        }
+
+        .neon-logo:hover {
+            transform: scale(1.05); /* Üzerine gelince hafif büyüsün */
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
+        }
+
+        .form-control {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #444;
+            color: white;
+        }
+
+        .form-control:focus {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5); /* Tıklayınca mavi parlama */
+            border-color: cyan;
+        }
+
+        .btn-custom {
+            background: linear-gradient(45deg, #00d2ff, #3a7bd5); /* Buton rengi */
+            border: none;
+            color: white;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .btn-custom:hover {
+            transform: translateY(-2px); /* Tıklayınca hafif yukarı kalksın */
+            box-shadow: 0 5px 15px rgba(0, 210, 255, 0.4);
+        }
+    </style>
+
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-6"> <!-- Genişliği sınırlayan yapı -->
-                <form method="POST" class="form-signin" style="color:white">
-                    {{ form.hidden_tag() }}
-                    <img class="mb-4" src="foto.png" alt="">
-                    <h1 class="h3 mb-3 font-weight-normal">
-                        Please Log in
-                    </h1>
-                    <br>
+            <div class="col-md-5">
+                <div class="card-custom text-center">
+                    <form method="POST" class="form-signin">
+                        {{ form.hidden_tag() }}
 
-                    <label for="username">User</label>
-                    {{ form.username(class="form-control", placeholder="User Name") }}
+                        <img class="mb-4 neon-logo" src="{{ url_for('static', filename='foto.png') }}" alt="Library Logo" width="150" height="150">
 
-                    <label for="password">Pass</label>
-                    {{ form.password(class="form-control", placeholder="Password") }}
+                        <h1 class="h3 mb-3 font-weight-normal" style="letter-spacing: 2px;">
+                            GİRİŞ YAP
+                        </h1>
 
-                    <br>
+                        <div class="form-group text-left">
+                            <label for="username" style="color:#ccc">Kullanıcı Adı</label>
+                            {{ form.username(class="form-control", placeholder="Kullanıcı adınız") }}
+                        </div>
 
-                    <div class="checkbox mb-3">
-                        <h6>Do not have an account?</h6>
-                        <a class="btn btn-sm btn-secondary" href="{{ url_for('register_page') }}">Create an account</a>
-                    </div>
+                        <div class="form-group text-left">
+                            <label for="password" style="color:#ccc">Şifre</label>
+                            {{ form.password(class="form-control", placeholder="Şifreniz") }}
+                        </div>
 
-                    {{ form.submit(class="btn btn-lg btn-block btn-primary") }}
-                </form>
+                        <br>
+
+                        <div class="checkbox mb-3">
+                            <small style="color:#aaa">Hesabınız yok mu?</small>
+                            <br>
+                            <a class="btn btn-sm btn-outline-light mt-2" href="{{ url_for('register_page') }}">Kayıt Ol</a>
+                        </div>
+
+                        {{ form.submit(class="btn btn-lg btn-block btn-custom") }}
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-    </body>
 {% endblock %}
