@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% block title %}
+    Profil - {{ current_user.username }}
+{% endblock %}
+
+{% block content %}
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: rgba(0, 210, 255, 0.1);
+            border-left: 5px solid #00d2ff;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .stat-number { font-size: 2rem; font-weight: bold; color: #00d2ff; }
+        .stat-label { color: #ccc; text-transform: uppercase; letter-spacing: 1px; font-size: 0.9rem; }
+    </style>
+
+    <div class="container" style="margin-top: 50px;">
+
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <img src="{{ url_for('static', filename='foto.png') }}" class="img-fluid rounded-circle mb-3" width="100" style="box-shadow: 0 0 20px rgba(0,255,255,0.5);">
+                <h2>Merhaba, <span style="color: #00d2ff;">{{ current_user.username }}</span></h2>
+                <p class="text-muted">{{ current_user.email_address }}</p>
+                {% if current_user.is_admin %}
+                    <span class="badge badge-danger px-3 py-2">YÖNETİCİ (ADMIN)</span>
+                {% else %}
+                    <span class="badge badge-success px-3 py-2">KÜTÜPHANE ÜYESİ</span>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if current_user.is_admin %}
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="glass-panel stat-card">
+                        <div class="stat-number">{{ total_users }}</div>
+                        <div class="stat-label">Toplam Üye</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="glass-panel stat-card">
+                        <div class="stat-number">{{ total_books }}</div>
+                        <div class="stat-label">Toplam Kitap</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="glass-panel stat-card">
+                        <div class="stat-number">{{ active_loans }}</div>
+                        <div class="stat-label">Aktif Ödünç</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel">
+                <h4><i class="fas fa-users-cog"></i> Üye ve Ceza Yönetimi</h4>
+                <p class="text-muted">Buradan üyelerin cezalarını prosedür kullanarak silebilirsiniz.</p>
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover">
+                        <thead>
+                        <tr style="color: #00d2ff;">
+                            <th>ID</th>
+                            <th>Kullanıcı Adı</th>
+                            <th>Email</th>
+                            <th>İşlemler</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for user in users %}
+                            <tr>
+                                <td>{{ user.id }}</td>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.email_address }}</td>
+                                <td>
+                                    <a href="{{ url_for('forgive_user_fine', user_id=user.id) }}"
+                                       class="btn btn-sm btn-outline-warning"
+                                       onclick="return confirm('Bu kullanıcının TÜM cezalarını silmek (Af çıkarmak) istediğinize emin misiniz?');">
+                                        <i class="fas fa-hand-holding-usd"></i> Cezaları Affet
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        {% else %}
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="glass-panel text-center">
+                        <h3>Toplam Ceza Borcunuz</h3>
+                        {% if total_fine > 0 %}
+                            <h1 style="color: #ff4d4d; font-size: 4rem;">{{ total_fine }} TL</h1>
+                            <p class="text-danger">Lütfen en kısa sürede kütüphane yönetimine ödeme yapınız.</p>
+                        {% else %}
+                            <h1 style="color: #2ecc71; font-size: 4rem;">0 TL</h1>
+                            <p class="text-success">Harika! Hiç borcunuz yok.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel">
+                <h4><i class="fas fa-history"></i> Kitap Geçmişim</h4>
+                <br>
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover">
+                        <thead>
+                        <tr style="color: #00d2ff;">
+                            <th>Kitap Adı</th>
+                            <th>Alış Tarihi</th>
+                            <th>Son Teslim</th>
+                            <th>İade Tarihi</th>
+                            <th>Durum</th>
+                            <th>Ceza</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for record in history %}
+                            <tr>
+                                <td>{{ record.book.name }}</td>
+                                <td>{{ record.borrow_date.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ record.due_date.strftime('%Y-%m-%d') }}</td>
+                                <td>
+                                    {% if record.return_date %}
+                                        {{ record.return_date.strftime('%Y-%m-%d') }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if record.return_date %}
+                                        <span class="badge badge-success">İade Edildi</span>
+                                    {% else %}
+                                        <span class="badge badge-warning">Sizde</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if record.fine_amount > 0 %}
+                                        <span style="color: #ff4d4d; font-weight: bold;">{{ record.fine_amount }} TL</span>
+                                    {% else %}
+                                        <span style="color: #ccc;">0 TL</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        {% endif %}
+    </div>
+{% endblock %}

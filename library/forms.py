@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import Length, EqualTo, Email, DataRequired, ValidationError
 from library.models import User
+from wtforms import TextAreaField
 
 class RegisterForm(FlaskForm):
     def validate_username(self, username_to_check):
@@ -33,3 +34,12 @@ class BorrowBookForm(FlaskForm):
 # İSİM DEĞİŞİKLİĞİ: SellItemForm -> ReturnBookForm
 class ReturnBookForm(FlaskForm):
     submit = SubmitField(label='Geri ver!')
+
+# --- KİTAP EKLEME FORMU (Sadece Admin Görecek) ---
+class AddBookForm(FlaskForm):
+    name = StringField(label='Kitap Adı:', validators=[DataRequired()])
+    author = StringField(label='Yazar:', validators=[DataRequired()])
+    category = StringField(label='Kategori:', validators=[DataRequired()])
+    barcode = StringField(label='Barkod:', validators=[Length(min=12, max=12), DataRequired()])
+    description = TextAreaField(label='Açıklama:', validators=[DataRequired()])
+    submit = SubmitField(label='Kitabı Kütüphaneye Ekle')

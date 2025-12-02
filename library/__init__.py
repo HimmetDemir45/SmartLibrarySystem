@@ -6,6 +6,7 @@ from flask_login import LoginManager
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:2993@localhost/newschema'
 app.config['SECRET_KEY'] = 'ec9439cfc6c796ae2029594d'
+app.config['WTF_CSRF_ENABLED'] = False
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
