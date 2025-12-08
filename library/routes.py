@@ -336,7 +336,7 @@ def delete_book_web(id):
         try:
             db.session.delete(book)
             db.session.commit()
-            flash(f"{book.name} kitabı başarıyla silindi.", category='success')
+            flash(f"{book.name} kitabı başarıyla silind.", category='success')
         except:
             flash("Kitap silinemedi. Şu an birinde ödünçte olabilir.", category='danger')
 
