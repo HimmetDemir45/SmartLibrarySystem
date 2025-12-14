@@ -88,7 +88,7 @@
                                 <td>{{ user.username }}</td>
                                 <td>{{ user.email_address }}</td>
                                 <td>
-                                    <a href="{{ url_for('forgive_user_fine', user_id=user.id) }}"
+                                    <a href="{{ url_for('main_bp.forgive_user_fine', user_id=user.id) }}"
                                        class="btn btn-sm btn-outline-warning"
                                        onclick="return confirm('Bu kullanıcının TÜM cezalarını silmek (Af çıkarmak) istediğinize emin misiniz?');">
                                         <i class="fas fa-hand-holding-usd"></i> Cezaları Affet

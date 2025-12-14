@@ -1,0 +1,20 @@
+from library import db
+
+class Book(db.Model):
+    __tablename__ = 'book'
+
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(length=50), nullable=False)
+    barcode = db.Column(db.String(length=12), nullable=False, unique=True)
+    description = db.Column(db.String(length=1024), nullable=False)
+    is_available = db.Column(db.Boolean, default=True)
+
+    # İlişkiler (Foreign Keys)
+    author_id = db.Column(db.Integer, db.ForeignKey('author.id'), nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
+
+    # İlişki tanımları
+    borrows = db.relationship('Borrow', backref='book', lazy=True)
+
+    def __repr__(self):
+        return f'{self.name}'

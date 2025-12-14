@@ -1,0 +1,5 @@
+from library.repositories.book_repository import BookRepository
+from library.repositories.user_repository import UserRepository
+from library.repositories.author_repository import AuthorRepository
+from library.repositories.category_repository import CategoryRepository
+from library.repositories.borrow_repository import BorrowRepository

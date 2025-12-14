@@ -72,7 +72,7 @@
 </head>
 <body>
 <nav class="navbar navbar-expand-md navbar-dark fixed-top navbar-custom">
-    <a class="navbar-brand" href="{{ url_for('home_page') }}">
+    <a class="navbar-brand" href="{{ url_for('main_bp.home_page') }}">
         <i class="fas fa-book-reader" style="color: #00d2ff; margin-right: 8px;"></i>
         AKILLI KÜTÜPHANE
     </a>
@@ -82,13 +82,13 @@
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('home_page') }}">
+                <a class="nav-link" href="{{ url_for('main_bp.home_page') }}">
                     <i class="fas fa-home" style="margin-right: 5px;"></i>
                     Ana Sayfa
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('library_page') }}">
+                <a class="nav-link" href="{{ url_for('book_bp.library_page') }}">
                     <i class="fas fa-book-open" style="margin-right: 5px;"></i>
                     Katalog
                 </a>
@@ -97,7 +97,7 @@
         {% if current_user.is_authenticated %}
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('profile_page') }}" style="color: lawngreen; font-weight: bold; cursor: pointer;">
+                    <a class="nav-link" href="{{ url_for('main_bp.profile_page') }}" style="color: lawngreen; font-weight: bold; cursor: pointer;">
                         <i class="fas fa-user budget-icon"></i>
                         {{ current_user.username }}
                         {% if current_user.is_admin %}
@@ -106,7 +106,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('logout_page') }}">
+                    <a class="nav-link" href="{{ url_for('auth_bp.logout_page') }}">
                         <i class="fas fa-sign-out-alt logout-icon"></i>
                         Çıkış Yap
                     </a>
@@ -115,13 +115,13 @@
         {% else %}
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('login_page') }}">
+                    <a class="nav-link" href="{{ url_for('auth_bp.login_page') }}">
                         <i class="fas fa-sign-in-alt" style="margin-right: 5px;"></i>
                         Giriş Yap
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('register_page') }}">
+                    <a class="nav-link" href="{{ url_for('auth_bp.register_page') }}">
                         <i class="fas fa-user-plus" style="margin-right: 5px;"></i>
                         Kayıt Ol
                     </a>

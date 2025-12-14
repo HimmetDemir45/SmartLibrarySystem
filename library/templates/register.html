@@ -107,7 +107,7 @@
                         <div class="checkbox mb-3">
                             <small style="color:#aaa">Zaten bir hesabınız var mı?</small>
                             <br>
-                            <a class="btn btn-sm btn-outline-light mt-2" href="{{ url_for('login_page') }}">Giriş Yap</a>
+                            <a class="btn btn-sm btn-outline-light mt-2" href="{{ url_for('auth_bp.login_page') }}">Giriş Yap</a>
                         </div>
 
                         {{ form.submit(class="btn btn-lg btn-block btn-custom", value="Hesap Oluştur") }}
