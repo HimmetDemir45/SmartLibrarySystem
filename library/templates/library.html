@@ -134,6 +134,8 @@
                             <thead>
                             <tr>
                                 <th scope="col">ID</th>
+
+                                <th scope="col">Kapak</th>
                                 <th scope="col">Kitap Adı</th>
                                 <th scope="col">Yazar</th>
                                 <th scope="col">Kategori</th>
@@ -142,9 +144,15 @@
                             </tr>
                             </thead>
                             <tbody>
-                            {% for item in items %}
+                            {% for item in items.items %}
                                 <tr>
                                     <td>{{ item.id }}</td>
+
+                                    <td>
+                                        <img src="{{ url_for('static', filename='book_pics/' + item.image_file) }}"
+                                             alt="{{ item.name }}"
+                                             style="height: 60px; width: 40px; object-fit: cover; border-radius: 3px;">
+                                    </td>
                                     <td style="font-weight: bold; color: #fff;">{{ item.name }}</td>
                                     <td>{{ item.author.name }}</td>
                                     <td><span class="badge badge-dark">{{ item.category.name }}</span></td>
@@ -184,6 +192,55 @@
                             </tbody>
                         </table>
                     </div>
+                    <nav aria-label="Page navigation" class="mt-4">
+                        <ul class="pagination justify-content-center">
+
+                            {% if items.has_prev %}
+                                <li class="page-item">
+                                    <a class="page-link bg-dark text-info border-secondary"
+                                       href="{{ url_for('book_bp.library_page', page=items.prev_num, q=request.args.get('q', '')) }}">
+                                        &laquo; Önceki
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link bg-secondary text-white border-secondary">&laquo; Önceki</span>
+                                </li>
+                            {% endif %}
+
+                            {% for page_num in items.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                                {% if page_num %}
+                                    {% if items.page == page_num %}
+                                        <li class="page-item active">
+                                            <span class="page-link bg-info border-info">{{ page_num }}</span>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item">
+                                            <a class="page-link bg-dark text-info border-secondary"
+                                               href="{{ url_for('book_bp.library_page', page=page_num, q=request.args.get('q', '')) }}">
+                                                {{ page_num }}
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                {% else %}
+                                    <li class="page-item disabled"><span class="page-link bg-dark text-white border-secondary">...</span></li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if items.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link bg-dark text-info border-secondary"
+                                       href="{{ url_for('book_bp.library_page', page=items.next_num, q=request.args.get('q', '')) }}">
+                                        Sonraki &raquo;
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link bg-secondary text-white border-secondary">Sonraki &raquo;</span>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
                 </div>
             </div>
 
@@ -232,9 +289,11 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <form method="POST">
+                        <form method="POST" enctype="multipart/form-data">
                             {{ add_book_form.hidden_tag() }}
-
+                            <div class="form-group">
+                                <label>Kitap Kapağı</label>
+                                {{ add_book_form.image(class="form-control-file") }} </div>
                             <div class="form-group">
                                 <label>Kitap Adı</label>
                                 {{ add_book_form.name(class="form-control", placeholder="Kitap Adı") }}
@@ -264,7 +323,7 @@
         </div>
     {% endif %}
 
-    {% for item in items %}
+    {% for item in items.items %}
 
         <div class="modal fade" id="Modal-MoreInfo-{{ item.id }}" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog" role="document">

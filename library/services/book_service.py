@@ -12,16 +12,16 @@ class BookService:
     category_repo = CategoryRepository()
 
     @staticmethod
-    def get_all_books():
-        return BookService.book_repo.get_all()
+    def get_all_books(page=1): # page parametresi eklendi
+        return BookService.book_repo.get_all_paginated(page=page)
 
     @staticmethod
     def get_book_by_id(book_id):
         return BookService.book_repo.get_by_id(book_id)
 
     @staticmethod
-    def search_books(query):
-        return BookService.book_repo.search(query)
+    def search_books(query, page=1): # page parametresi eklendi
+        return BookService.book_repo.search(query, page=page)
 
 
     @staticmethod
@@ -29,7 +29,7 @@ class BookService:
         return BookService.book_repo.find_by_name(book_name)
 
     @staticmethod
-    def add_book(name, author_name, category_name, barcode, description):
+    def add_book(name, author_name, category_name, barcode, description, image_file='default.jpg'):
         # 1. Yazar Var mı? Yoksa oluştur.
         author = BookService.author_repo.get_by_name(author_name)
         if not author:
@@ -40,13 +40,14 @@ class BookService:
         if not category:
             category = BookService.category_repo.add(Category(name=category_name))
 
-        # 3. Kitabı Ekle (Repository'ye nesne gönderiyoruz)
+        # 3. Kitabı Ekle (image_file eklendi)
         new_book = Book(
             name=name,
             barcode=barcode,
             description=description,
             author_id=author.id,
             category_id=category.id,
+            image_file=image_file,  # <-- BURASI YENİ
             is_available=True
         )
         return BookService.book_repo.add(new_book)

@@ -1,7 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField, SubmitField, TextAreaField
 from wtforms.validators import Length, EqualTo, Email, DataRequired, ValidationError
 from library.models import User
+from flask_wtf.file import FileField, FileAllowed
 from wtforms import TextAreaField
 
 class RegisterForm(FlaskForm):
@@ -42,4 +43,5 @@ class AddBookForm(FlaskForm):
     category = StringField(label='Kategori:', validators=[DataRequired()])
     barcode = StringField(label='Barkod:', validators=[Length(min=12, max=12), DataRequired()])
     description = TextAreaField(label='Açıklama:', validators=[DataRequired()])
+    image = FileField('Kitap Kapağı', validators=[FileAllowed(['jpg', 'png', 'jpeg'])])
     submit = SubmitField(label='Kitabı Kütüphaneye Ekle')

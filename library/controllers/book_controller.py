@@ -1,10 +1,32 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask import Blueprint, render_template, request, flash, redirect, url_for, current_app
 from flask_login import login_required, current_user
 from library.forms import AddBookForm, BorrowBookForm, ReturnBookForm
 from library.services.book_service import BookService
 from library.services.loan_service import LoanService
+from PIL import Image
+import os
+import secrets
 
 book_bp = Blueprint('book_bp', __name__)
+
+
+def save_picture(form_picture):
+    # Rastgele isim üret (Dosya isimleri çakışmasın diye)
+    random_hex = secrets.token_hex(8)
+    _, f_ext = os.path.splitext(form_picture.filename)
+    picture_fn = random_hex + f_ext
+
+    # Dosya yolu: library/static/book_pics klasörü
+    picture_path = os.path.join(current_app.root_path, 'static/book_pics', picture_fn)
+
+    # Resmi Yeniden Boyutlandır (Örn: 125x200 pixel) - Opsiyonel ama önerilir
+    output_size = (250, 400)  # Kalite bozulmasın diye biraz büyük tuttum
+    i = Image.open(form_picture)
+    i.thumbnail(output_size)
+    i.save(picture_path)
+
+    return picture_fn
+
 
 @book_bp.route('/library', methods=['GET', 'POST'])
 @login_required
@@ -14,14 +36,21 @@ def library_page():
     add_book_form = AddBookForm()
 
     if request.method == "POST":
-        # --- 1. KİTAP EKLEME (Sadece Admin) ---
+        # --- 1. KİTAP EKLEME ---
         if add_book_form.validate_on_submit():
+            image_file_name = 'default.jpg'  # Varsayılan resim
+
+            # Eğer kullanıcı resim yüklediyse kaydet
+            if add_book_form.image.data:
+                image_file_name = save_picture(add_book_form.image.data)
+
             BookService.add_book(
                 name=add_book_form.name.data,
                 author_name=add_book_form.author.data,
                 category_name=add_book_form.category.data,
                 barcode=add_book_form.barcode.data,
-                description=add_book_form.description.data
+                description=add_book_form.description.data,
+                image_file=image_file_name  # <-- Servise gönderiyoruz
             )
             flash(f"{add_book_form.name.data} başarıyla eklendi!", category='success')
             return redirect(url_for('book_bp.library_page'))
@@ -60,15 +89,17 @@ def library_page():
         return redirect(url_for('book_bp.library_page'))
 
     # --- GET İSTEĞİ (SAYFA GÖRÜNTÜLEME) ---
+    page = request.args.get('page', 1, type=int)
     search_query = request.args.get('q')
-    books = BookService.search_books(search_query)
-
-    # Kullanıcının elindeki kitapları bul (Modal için gerekli)
+    # Artık 'books' bir liste değil, Pagination objesi dönüyor
+    books_pagination = BookService.search_books(search_query, page=page)
     owned_books = LoanService.get_user_active_loans(current_user.id)
 
-    return render_template('library.html', items=books, purchase_form=borrow_form,
+
+    return render_template('library.html', items=books_pagination, purchase_form=borrow_form,
                            owned_items=owned_books, selling_form=return_form,
                            add_book_form=add_book_form)
+
 
 # --- Diğer Rotalar (Silme, Düzenleme) ---
 @book_bp.route('/delete_book_web/<int:id>')
@@ -85,6 +116,7 @@ def delete_book_web(id):
         flash("Kitap silinemedi.", 'danger')
 
     return redirect(url_for('book_bp.library_page'))
+
 
 @book_bp.route('/edit_book_web/<int:id>', methods=['POST'])
 @login_required
