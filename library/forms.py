@@ -28,11 +28,11 @@ class LoginForm(FlaskForm):
     password = PasswordField(label='Password:', validators=[DataRequired()])
     submit = SubmitField(label='Sign in')
 
-# İSİM DEĞİŞİKLİĞİ: PurchaseItemForm -> BorrowBookForm
+
 class BorrowBookForm(FlaskForm):
     submit = SubmitField(label='Ödünç al!')
 
-# İSİM DEĞİŞİKLİĞİ: SellItemForm -> ReturnBookForm
+
 class ReturnBookForm(FlaskForm):
     submit = SubmitField(label='Geri ver!')
 
