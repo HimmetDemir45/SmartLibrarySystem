@@ -9,7 +9,7 @@ class Book(db.Model):
     description = db.Column(db.String(length=1024), nullable=False)
 
     # YENİ EKLENEN SATIR: Resim dosyası adı (Varsayılan olarak 'default.jpg' olsun)
-    image_file = db.Column(db.String(20), nullable=False, default='default.jpg')
+    image_file = db.Column(db.String(60), nullable=False, default='default.jpg') # <-- Yeni
 
     is_available = db.Column(db.Boolean, default=True)
 

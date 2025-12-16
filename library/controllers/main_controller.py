@@ -2,7 +2,6 @@ from flask import Blueprint, render_template, redirect, url_for, flash
 from flask_login import login_required, current_user
 from library.models import User, Book, Borrow
 from library.services.loan_service import LoanService
-
 main_bp = Blueprint('main_bp', __name__)
 
 @main_bp.route('/')
@@ -13,25 +12,16 @@ def home_page():
 @main_bp.route('/profile')
 @login_required
 def profile_page():
-    # ADMIN İSE: İstatistikleri göster
-    if current_user.is_admin:
-        total_users = User.query.count()
-        total_books = Book.query.count()
-        active_loans = Borrow.query.filter_by(return_date=None).count()
-        # Kendisi hariç diğer üyeler
-        users = User.query.filter(User.id != current_user.id).all()
+    # 1. Kullanıcının tüm ödünç geçmişini çek
+    loan_history = LoanService.get_user_history(current_user.id)
 
-        return render_template('profile.html',
-                               total_users=total_users,
-                               total_books=total_books,
-                               active_loans=active_loans,
-                               users=users)
+    # 2. Toplam ceza miktarını hesapla
+    total_fines = LoanService.calculate_total_fine(current_user.id)
 
-    # NORMAL KULLANICI İSE: Kendi geçmişini göster
-    else:
-        my_history = LoanService.get_user_history(current_user.id)
-        total_fine = LoanService.calculate_total_fine(current_user.id)
-        return render_template('profile.html', history=my_history, total_fine=total_fine)
+    # 3. Profili render et
+    return render_template('profile.html',
+                           loan_history=loan_history, # <-- Yeni eklenen
+                           total_fines=total_fines) # <-- Yeni eklenen
 
 @main_bp.route('/forgive/<int:user_id>')
 @login_required

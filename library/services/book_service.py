@@ -5,6 +5,7 @@ from library.models.book import Book
 from library.models.author import Author
 from library.models.category import Category
 
+
 class BookService:
     # Depoları başlatıyoruz (Dependency Injection benzeri)
     book_repo = BookRepository()
@@ -28,29 +29,25 @@ class BookService:
     def get_book_by_name(book_name):
         return BookService.book_repo.find_by_name(book_name)
 
+    # library/services/book_service.py içindeki add_book metodu
+
     @staticmethod
-    def add_book(name, author_name, category_name, barcode, description, image_file='default.jpg'):
-        # 1. Yazar Var mı? Yoksa oluştur.
-        author = BookService.author_repo.get_by_name(author_name)
-        if not author:
-            author = BookService.author_repo.add(Author(name=author_name))
+    def add_book(name, author, category, barcode, description, image_file='default.jpg'):
+        """Yeni bir kitap kaydı oluşturur."""
 
-        # 2. Kategori Var mı? Yoksa oluştur.
-        category = BookService.category_repo.get_by_name(category_name)
-        if not category:
-            category = BookService.category_repo.add(Category(name=category_name))
-
-        # 3. Kitabı Ekle (image_file eklendi)
-        new_book = Book(
+        book_to_add = Book(
             name=name,
             barcode=barcode,
             description=description,
-            author_id=author.id,
-            category_id=category.id,
-            image_file=image_file,  # <-- BURASI YENİ
-            is_available=True
+            image_file=image_file,
+            # author ve category model objeleri olduğu için ID'lerini direkt kullanabiliriz.
+            author_id=author.id,       # <-- Objenin ID'sini kullan
+            category_id=category.id    # <-- Objenin ID'sini kullan
         )
-        return BookService.book_repo.add(new_book)
+
+        # Repository katmanını kullanarak kitabı kaydet
+        # (BookService.book_repo'nun BaseRepository'den geldiği ve add metoduna sahip olduğu varsayılır)
+        return BookService.book_repo.add(book_to_add)
 
     @staticmethod
     def delete_book(book_id):

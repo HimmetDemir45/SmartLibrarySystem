@@ -5,6 +5,18 @@ from library.models import User
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import TextAreaField
 
+from library.models import User, Author, Category
+from wtforms_sqlalchemy.fields import QuerySelectField
+
+# QuerySelectField için gerekli sorgu fonksiyonları
+def get_authors():
+    """Tüm yazarları çekmek için sorgu fonksiyonu."""
+    return Author.query.all()
+
+def get_categories():
+    """Tüm kategorileri çekmek için sorgu fonksiyonu."""
+    return Category.query.all()
+
 class RegisterForm(FlaskForm):
     def validate_username(self, username_to_check):
         user = User.query.filter_by(username=username_to_check.data).first()
@@ -37,11 +49,34 @@ class ReturnBookForm(FlaskForm):
     submit = SubmitField(label='Geri ver!')
 
 # --- KİTAP EKLEME FORMU (Sadece Admin Görecek) ---
+# ...
 class AddBookForm(FlaskForm):
     name = StringField(label='Kitap Adı:', validators=[DataRequired()])
-    author = StringField(label='Yazar:', validators=[DataRequired()])
-    category = StringField(label='Kategori:', validators=[DataRequired()])
+    # QuerySelectField ile değiştiriyoruz. Yazarları çekmek için get_authors fonksiyonunu kullanacak.
+    author = QuerySelectField(label='Yazar:', query_factory=get_authors, allow_blank=False, get_label='name')
+    # Kategorileri çekmek için get_categories fonksiyonunu kullanacak.
+    category = QuerySelectField(label='Kategori:', query_factory=get_categories, allow_blank=False, get_label='name')
     barcode = StringField(label='Barkod:', validators=[Length(min=12, max=12), DataRequired()])
     description = TextAreaField(label='Açıklama:', validators=[DataRequired()])
     image = FileField('Kitap Kapağı', validators=[FileAllowed(['jpg', 'png', 'jpeg'])])
     submit = SubmitField(label='Kitabı Kütüphaneye Ekle')
+
+# library/forms.py (Dosyanın sonuna ekleyin)
+# ... Mevcut kodlar ...
+
+# --- YAZAR VE KATEGORİ YÖNETİM FORMLARI (ADMIN) ---
+
+class AdminForm(FlaskForm):
+    """Admin paneli için temel form."""
+    name = StringField(label='İsim:', validators=[DataRequired(), Length(min=2, max=50)])
+    submit = SubmitField(label='Kaydet')
+
+
+class AddAuthorForm(AdminForm):
+    """Yazar Ekleme/Düzenleme Formu."""
+    pass # name ve submit alanlarını AdminForm'dan miras alır
+
+
+class AddCategoryForm(AdminForm):
+    """Kategori Ekleme/Düzenleme Formu."""
+    pass # name ve submit alanlarını AdminForm'dan miras alır

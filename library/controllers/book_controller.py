@@ -3,30 +3,9 @@ from flask_login import login_required, current_user
 from library.forms import AddBookForm, BorrowBookForm, ReturnBookForm
 from library.services.book_service import BookService
 from library.services.loan_service import LoanService
-from PIL import Image
-import os
-import secrets
+from library.services.file_service import FileService
 
 book_bp = Blueprint('book_bp', __name__)
-
-
-def save_picture(form_picture):
-    # Rastgele isim üret (Dosya isimleri çakışmasın diye)
-    random_hex = secrets.token_hex(8)
-    _, f_ext = os.path.splitext(form_picture.filename)
-    picture_fn = random_hex + f_ext
-
-    # Dosya yolu: library/static/book_pics klasörü
-    picture_path = os.path.join(current_app.root_path, 'static/book_pics', picture_fn)
-
-    # Resmi Yeniden Boyutlandır (Örn: 125x200 pixel) - Opsiyonel ama önerilir
-    output_size = (250, 400)  # Kalite bozulmasın diye biraz büyük tuttum
-    i = Image.open(form_picture)
-    i.thumbnail(output_size)
-    i.save(picture_path)
-
-    return picture_fn
-
 
 @book_bp.route('/library', methods=['GET', 'POST'])
 @login_required
@@ -38,19 +17,21 @@ def library_page():
     if request.method == "POST":
         # --- 1. KİTAP EKLEME ---
         if add_book_form.validate_on_submit():
-            image_file_name = 'default.jpg'  # Varsayılan resim
+            image_file_name = 'default.jpg'
 
             # Eğer kullanıcı resim yüklediyse kaydet
             if add_book_form.image.data:
-                image_file_name = save_picture(add_book_form.image.data)
+                # FileService'i kullandığınızı varsayıyorum (Aşama 1'den)
+                image_file_name = FileService.save_picture(add_book_form.image.data)
 
+            # Servisi yeni parametrelerle çağırıyoruz.
             BookService.add_book(
                 name=add_book_form.name.data,
-                author_name=add_book_form.author.data,
-                category_name=add_book_form.category.data,
+                author=add_book_form.author.data,       # <-- Obje gönderiliyor
+                category=add_book_form.category.data,   # <-- Obje gönderiliyor
                 barcode=add_book_form.barcode.data,
                 description=add_book_form.description.data,
-                image_file=image_file_name  # <-- Servise gönderiyoruz
+                image_file=image_file_name
             )
             flash(f"{add_book_form.name.data} başarıyla eklendi!", category='success')
             return redirect(url_for('book_bp.library_page'))

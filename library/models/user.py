@@ -19,7 +19,8 @@ class User(db.Model, UserMixin):
 
     @property
     def password(self):
-        return self.password
+        # Şifrenin okunabilir bir özellik olmadığını belirtiyoruz
+        raise AttributeError('password özelliği okunamayan bir alandır!')
 
     @password.setter
     def password(self, plain_text_password):
