@@ -80,3 +80,13 @@ class AddAuthorForm(AdminForm):
 class AddCategoryForm(AdminForm):
     """Kategori Ekleme/Düzenleme Formu."""
     pass # name ve submit alanlarını AdminForm'dan miras alır
+
+class EditBookForm(FlaskForm):
+    """Kitap Düzenleme Formu (Validasyon için)"""
+    name = StringField(label='Kitap Adı:', validators=[DataRequired()])
+    # Not: Servis katmanınız string beklediği için şimdilik StringField kullanıyoruz.
+    author = StringField(label='Yazar:', validators=[DataRequired()])
+    category = StringField(label='Kategori:', validators=[DataRequired()])
+    barcode = StringField(label='Barkod:', validators=[Length(min=12, max=12), DataRequired()])
+    description = TextAreaField(label='Açıklama:', validators=[DataRequired()])
+    submit = SubmitField(label='Değişiklikleri Kaydet')

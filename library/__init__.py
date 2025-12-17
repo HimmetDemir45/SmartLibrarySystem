@@ -19,7 +19,10 @@ from library.controllers.main_controller import main_bp
 from library.controllers.auth_controller import auth_bp
 from library.controllers.book_controller import book_bp
 from library.controllers.admin_controller import admin_bp
+from library.controllers.api_controller import api_bp
+
 app.register_blueprint(main_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(book_bp)
 app.register_blueprint(admin_bp)
+app.register_blueprint(api_bp)

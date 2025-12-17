@@ -1,0 +1,288 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Admin Paneli
+{% endblock %}
+
+{% block content %}
+    <style>
+        body {
+            background-color: #212121;
+            color: white;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            margin-bottom: 20px;
+        }
+
+        .btn-admin-action {
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+    </style>
+
+    <div class="container-fluid" style="margin-top: 50px;">
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2 class="text-center text-info" style="font-weight: 300; letter-spacing: 2px;">
+                    <i class="fas fa-user-shield"></i> YÖNETİCİ PANELİ
+                </h2>
+                <hr style="background-color: rgba(255,255,255,0.2);">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="glass-panel text-center">
+                    <h4 class="text-success"><i class="fas fa-book"></i> Kitaplar</h4>
+                    <p>Kütüphaneye Yeni Eser Ekle</p>
+                    <button class="btn btn-outline-success btn-block" data-toggle="modal" data-target="#Modal-AddBook">
+                        <i class="fas fa-plus"></i> Yeni Kitap Ekle
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="glass-panel text-center">
+                    <h4><i class="fas fa-pen-nib"></i> Yazarlar</h4>
+                    <p>Sistemdeki Yazarları Yönet</p>
+                    <button class="btn btn-outline-warning btn-block" data-toggle="modal"
+                            data-target="#Modal-AddAuthor">
+                        <i class="fas fa-plus"></i> Yeni Yazar Ekle
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="glass-panel text-center">
+                    <h4><i class="fas fa-tags"></i> Kategoriler</h4>
+                    <p>Kitap Kategorilerini Yönet</p>
+                    <button class="btn btn-outline-info btn-block" data-toggle="modal" data-target="#Modal-AddCategory">
+                        <i class="fas fa-plus"></i> Yeni Kategori Ekle
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="glass-panel">
+                    <h3 class="text-warning"><i class="fas fa-clock"></i> Takipteki Kitaplar (İade Edilmeyenler)</h3>
+                    <p class="text-muted">Gecikmiş kitaplar kırmızı tarih ile gösterilir. Cezalar anlık hesaplanır.</p>
+                    <hr style="background-color: white;">
+
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover table-bordered text-center">
+                            <thead>
+                            <tr class="text-info">
+                                <th>Kitap Adı</th>
+                                <th>Alan Üye</th>
+                                <th>Alış Tarihi</th>
+                                <th>Son Teslim</th>
+                                <th>Gecikme</th>
+                                <th>Anlık Ceza</th>
+                                <th>İşlem</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for item in active_loans %}
+                                <tr>
+                                    <td class="text-left font-weight-bold">{{ item.borrow.book.name }}</td>
+                                    <td>{{ item.borrow.user.username }}</td>
+                                    <td>{{ item.borrow.borrow_date.strftime('%d.%m.%Y') }}</td>
+
+                                    <td>
+                                        {% if item.days_overdue > 0 %}
+                                            <span class="badge badge-danger p-2">{{ item.borrow.due_date.strftime('%d.%m.%Y') }}</span>
+                                        {% else %}
+                                            <span class="badge badge-success p-2">{{ item.borrow.due_date.strftime('%d.%m.%Y') }}</span>
+                                        {% endif %}
+                                    </td>
+
+                                    <td>
+                                        {% if item.days_overdue > 0 %}
+                                            <span class="text-danger font-weight-bold">{{ item.days_overdue }} Gün</span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+
+                                    <td>
+                                        {% if item.current_fine > 0 %}
+                                            <span class="badge badge-warning"
+                                                  style="font-size: 1em; color: black;">{{ item.current_fine }} TL</span>
+                                        {% else %}
+                                            <span class="text-success">0 TL</span>
+                                        {% endif %}
+                                    </td>
+
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-light" disabled>Detay</button>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="7" class="text-muted py-4">
+                                        <i class="fas fa-check-circle fa-2x mb-3"></i><br>
+                                        Şu an dışarıda ödünç verilmiş kitap yok. Her şey rafta!
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="glass-panel">
+                    <h3><i class="fas fa-users"></i> Kayıtlı Kullanıcılar</h3>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-dark table-striped mt-3">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Kullanıcı Adı</th>
+                                <th>Email</th>
+                                <th>Toplam Bütçe</th>
+                                <th>İşlemler</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for user in all_users %}
+                                <tr>
+                                    <td>{{ user.id }}</td>
+                                    <td>{{ user.username }}</td>
+                                    <td>{{ user.email_address }}</td>
+                                    <td>{{ user.budget }} TL</td>
+                                    <td>
+                                        <form action="{{ url_for('admin_bp.forgive_fines', user_id=user.id) }}"
+                                              method="POST" style="display:inline;">
+                                            <button type="submit" class="btn btn-sm btn-outline-success"
+                                                    onclick="return confirm('Bu kullanıcının TÜM cezalarını silmek istediğinize emin misiniz?');">
+                                                <i class="fas fa-hand-holding-usd"></i> Cezaları Affet
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal fade" id="Modal-AddAuthor" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="background-color: #2c3e50;">
+                <div class="modal-header">
+                    <h5 class="modal-title">Yeni Yazar Ekle</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST">
+                        {{ author_form.hidden_tag() }}
+                        <div class="form-group">
+                            {{ author_form.name.label(class="form-control-label") }}
+                            {{ author_form.name(class="form-control") }}
+                        </div>
+                        <input type="hidden" name="author_submit" value="1">
+                        {{ author_form.submit(class="btn btn-success btn-block") }}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="Modal-AddCategory" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="background-color: #2c3e50;">
+                <div class="modal-header">
+                    <h5 class="modal-title">Yeni Kategori Ekle</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST">
+                        {{ category_form.hidden_tag() }}
+                        <div class="form-group">
+                            {{ category_form.name.label(class="form-control-label") }}
+                            {{ category_form.name(class="form-control") }}
+                        </div>
+                        <input type="hidden" name="category_submit" value="1">
+                        {{ category_form.submit(class="btn btn-info btn-block") }}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="Modal-AddBook" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" style="background-color: #2c3e50;">
+                <div class="modal-header">
+                    <h5 class="modal-title">Yeni Kitap Ekle</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ add_book_form.hidden_tag() }}
+
+                        <div class="form-row">
+                            <div class="col-md-6 form-group">
+                                <label>Kitap Adı</label>
+                                {{ add_book_form.name(class="form-control", placeholder="Örn: Sefiller") }}
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>Barkod (12 Hane)</label>
+                                {{ add_book_form.barcode(class="form-control", placeholder="Örn: 123456789012") }}
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="col-md-6 form-group">
+                                <label>Yazar Seç</label>
+                                {{ add_book_form.author(class="form-control") }}
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>Kategori Seç</label>
+                                {{ add_book_form.category(class="form-control") }}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Açıklama</label>
+                            {{ add_book_form.description(class="form-control", rows="3") }}
+                        </div>
+
+                        <div class="form-group">
+                            <label>Kitap Kapağı</label>
+                            {{ add_book_form.image(class="form-control-file") }}
+                        </div>
+
+                        <input type="hidden" name="book_submit" value="1">
+
+                        <br>
+                        {{ add_book_form.submit(class="btn btn-success btn-block") }}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

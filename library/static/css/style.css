@@ -1,0 +1,134 @@
+/* Genel Sayfa Ayarları */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #212121;
+    color: white;
+    min-height: 100vh;
+}
+
+/* Navbar Tasarımı */
+.navbar-custom {
+    background-color: rgba(0, 0, 0, 0.8); /* Biraz daha koyu ve belirgin */
+    backdrop-filter: blur(15px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 15px 20px;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: #fff !important;
+    text-transform: uppercase;
+}
+
+.navbar-brand:hover {
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+}
+
+.nav-link {
+    color: rgba(255, 255, 255, 0.7) !important;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    margin-left: 10px;
+}
+
+.nav-link:hover {
+    color: #00d2ff !important;
+    text-shadow: 0 0 15px rgba(0, 210, 255, 0.6);
+    transform: translateY(-2px);
+}
+
+.nav-link.active {
+    color: #00d2ff !important;
+    border-bottom: 2px solid #00d2ff;
+}
+
+/* İkonlar */
+.budget-icon {
+    color: #00d2ff;
+    margin-right: 5px;
+}
+
+.logout-icon {
+    margin-right: 5px;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover .logout-icon {
+    color: #ff4d4d;
+}
+
+/* Glassmorphism Paneller (Genel Kullanım İçin) */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    margin-bottom: 20px;
+}
+/* --- GİRİŞ VE KAYIT SAYFALARI İÇİN ÖZEL STİLLER --- */
+
+/* Giriş Kutusu (Input) Tasarımı */
+.form-control-modern {
+    background-color: rgba(0, 0, 0, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white !important;
+    height: 50px;
+    border-radius: 0 30px 30px 0; /* Sol taraf düz, sağ taraf yuvarlak */
+    padding-left: 15px;
+    transition: all 0.3s;
+}
+
+.form-control-modern:focus {
+    background-color: rgba(0, 0, 0, 0.4) !important;
+    border-color: #00d2ff;
+    box-shadow: 0 0 10px rgba(0, 210, 255, 0.3);
+}
+
+.form-control-modern::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* İkon Kutusu (Input'un solundaki alan) */
+.input-group-text-modern {
+    background-color: rgba(0, 210, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: none;
+    color: #00d2ff;
+    border-radius: 30px 0 0 30px; /* Sol taraf yuvarlak, sağ taraf düz */
+    width: 50px;
+    justify-content: center;
+}
+
+/* Giriş Butonu */
+.btn-login {
+    background: linear-gradient(45deg, #00d2ff, #3a7bd5);
+    border: none;
+    border-radius: 30px;
+    padding: 12px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 210, 255, 0.4);
+    transition: transform 0.2s;
+}
+
+.btn-login:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 20px rgba(0, 210, 255, 0.6);
+    color: white;
+}
+
+/* Linkler */
+.auth-link {
+    color: #00d2ff;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.auth-link:hover {
+    color: white;
+    text-decoration: underline;
+}

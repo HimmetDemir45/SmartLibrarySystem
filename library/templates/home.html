@@ -1,15 +1,166 @@
 {% extends 'base.html' %}
+
 {% block title %}
-    Kütüphanemize Hoşgeldiniz
+    Ana Sayfa - Akıllı Kütüphane
 {% endblock %}
+
 {% block content %}
-    <div class="position-relative overflow-hidden p-3 p-md-5 m-md-3 text-center bg-dark" style="color:white">
-        <div class="col-md-5 p-lg-5 mx-auto my-5">
-            <h1 class="display-4 font-weight-normal">Akıllı kütüphane yönetim sistemi </h1>
-            <p class="lead font-weight-normal">Alttaki linke tıklayarak kitap ödünç almaya başlayın</p>
-            <a class="btn btn-primary" href="{{ url_for('book_bp.library_page') }}">Başla</a>
+    <style>
+        /* Hero (Karşılama) Alanı Tasarımı */
+        .hero-section {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+            background-size: cover;
+            background-position: center;
+            height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            margin-top: -20px; /* Navbar boşluğunu dengelemek için */
+            margin-bottom: 40px;
+            border-bottom: 5px solid #00d2ff;
+        }
+
+        .hero-content h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.8);
+            letter-spacing: 2px;
+        }
+
+        .hero-content p {
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+            color: #ddd;
+        }
+
+        .btn-hero {
+            background-color: #00d2ff;
+            color: #212121;
+            font-weight: bold;
+            padding: 12px 35px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+        }
+
+        .btn-hero:hover {
+            background-color: #fff;
+            transform: scale(1.05);
+            text-decoration: none;
+        }
+
+        /* Kart Tasarımları */
+        .feature-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s;
+            border: 1px solid rgba(255,255,255,0.1);
+            height: 100%;
+        }
+
+        .feature-box:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #00d2ff;
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            color: #00d2ff;
+            margin-bottom: 20px;
+        }
+
+        /* Kitap Vitrini */
+        .book-showcase-img {
+            height: 250px;
+            object-fit: cover;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+    </style>
+
+    <div class="hero-section">
+        <div class="hero-content container">
+            <h1>Bilginin Kapılarını Aralayın</h1>
+            <p>Binlerce kitaba tek tıkla erişin, okuyun ve keşfedin.</p>
+
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('book_bp.library_page') }}" class="btn btn-hero">
+                    <i class="fas fa-book-open"></i> Kataloğa Git
+                </a>
+            {% else %}
+                <a href="{{ url_for('auth_bp.register_page') }}" class="btn btn-hero">
+                    <i class="fas fa-user-plus"></i> Hemen Üye Ol
+                </a>
+                <a href="{{ url_for('auth_bp.login_page') }}" class="btn btn-outline-light ml-2" style="border-radius: 30px; padding: 12px 35px; font-weight: bold;">
+                    Giriş Yap
+                </a>
+            {% endif %}
         </div>
-        <div class="product-device box-shadow d-none d-md-block"></div>
-        <div class="product-device product-device-2 box-shadow d-none d-md-block"></div>
     </div>
+
+    <div class="container">
+
+        <div class="row mb-5">
+            <div class="col-md-4 mb-3">
+                <div class="feature-box">
+                    <i class="fas fa-search feature-icon"></i>
+                    <h4>Kolay Arama</h4>
+                    <p class="text-muted">İstediğiniz kitabı yazar, kategori veya isme göre saniyeler içinde bulun.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="feature-box">
+                    <i class="fas fa-clock feature-icon"></i>
+                    <h4>Hızlı Ödünç</h4>
+                    <p class="text-muted">Sıra beklemeden, tek tıkla kitabınızı ayırtın ve okumaya başlayın.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="feature-box">
+                    <i class="fas fa-mobile-alt feature-icon"></i>
+                    <h4>Her Yerden Erişim</h4>
+                    <p class="text-muted">Bilgisayarınızdan veya telefonunuzdan kütüphanenizi yönetin.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-12 text-center mb-4">
+                <h2 style="font-weight: 300; letter-spacing: 2px; color: #00d2ff;">
+                    <i class="fas fa-star"></i> Yeni Eklenenler
+                </h2>
+                <p class="text-muted">Kütüphanemize yeni katılan eserlere göz atın</p>
+                <hr style="background-color: rgba(255,255,255,0.1); width: 50%;">
+            </div>
+        </div>
+
+        <div class="row mb-5">
+            {% for book in latest_books %}
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="card bg-dark text-white h-100 border-secondary shadow-lg">
+                        <div class="card-body text-center">
+                            <img src="{{ url_for('static', filename='book_pics/' + book.image_file) }}"
+                                 alt="{{ book.name }}" class="book-showcase-img img-fluid mb-3">
+                            <h5 class="card-title text-truncate">{{ book.name }}</h5>
+                            <p class="card-text text-muted small">{{ book.author.name }}</p>
+                            <a href="{{ url_for('book_bp.library_page', q=book.name) }}" class="btn btn-sm btn-outline-info btn-block">
+                                İncele
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-12 text-center">
+                    <p class="text-muted">Henüz vitrine eklenecek kitap bulunmuyor.</p>
+                </div>
+            {% endfor %}
+        </div>
+
+    </div>
+
 {% endblock %}

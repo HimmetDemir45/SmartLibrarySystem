@@ -4,437 +4,78 @@
 {% endblock %}
 
 {% block content %}
-    <style>
-        /* Sayfa genel düzeni */
-        body {
-            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
-            min-height: 100vh;
-            color: white;
-        }
-
-        /* Şeffaf Kart Tasarımı */
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            margin-bottom: 20px;
-        }
-
-        /* Tablo Tasarımı */
-        .table-custom {
-            color: white;
-            margin-top: 10px;
-        }
-
-        .table-custom thead th {
-            border-top: none;
-            border-bottom: 2px solid rgba(0, 210, 255, 0.5);
-            color: #00d2ff;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .table-custom tbody tr {
-            transition: background-color 0.3s;
-        }
-
-        .table-custom tbody tr:hover {
-            background-color: rgba(0, 210, 255, 0.1);
-        }
-
-        .table-custom td {
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            vertical-align: middle;
-        }
-
-        /* Kitap Kartları */
-        .book-card {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid #444;
-            border-radius: 10px;
-            transition: transform 0.3s;
-        }
-
-        .book-card:hover {
-            transform: translateY(-5px);
-            border-color: #00d2ff;
-            box-shadow: 0 5px 15px rgba(0, 210, 255, 0.2);
-        }
-
-        h2 {
-            font-weight: 300;
-            letter-spacing: 2px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-
-        /* Modal Tasarımı */
-        .modal-content-custom {
-            background-color: #2c3e50;
-            color: white;
-            border: 1px solid rgba(0, 210, 255, 0.3);
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        }
-
-        .form-control {
-            background-color: #34495e;
-            border: 1px solid #5d6d7e;
-            color: white;
-        }
-        .form-control:focus {
-            background-color: #3e5871;
-            color: white;
-            border-color: #00d2ff;
-            box-shadow: 0 0 5px rgba(0, 210, 255, 0.5);
-        }
-    </style>
-
     <div class="container-fluid" style="margin-top: 50px; padding: 0 30px;">
         <div class="row">
 
-            <div class="col-lg-8">
-                {% if current_user.is_admin %}
-                    <div class="mb-3">
-                        <button class="btn btn-outline-warning btn-block" data-toggle="modal" data-target="#Modal-AddBook">
-                            <i class="fas fa-plus-circle"></i> Yeni Kitap Ekle (Admin)
+            <div class="col-lg-9"> <form method="GET" action="{{ url_for('book_bp.library_page') }}" class="mb-4 mt-3">
+                <div class="input-group input-group-lg"> <input type="text" name="q" id="search-input" class="form-control"
+                                                                placeholder="Kitap Vitrininde Ara: İsim, Yazar veya Barkod..."
+                                                                value="{{ request.args.get('q', '') }}"
+                                                                autocomplete="off"
+                                                                style="background-color: rgba(255,255,255,0.1); color: white; border-color: #555;">
+
+                    <div class="input-group-append">
+                        <button class="btn btn-info" type="submit">
+                            <i class="fas fa-search"></i> Ara
                         </button>
+                        {% if request.args.get('q') %}
+                            <a href="{{ url_for('book_bp.library_page') }}" class="btn btn-danger">
+                                <i class="fas fa-times"></i>
+                            </a>
+                        {% endif %}
                     </div>
-                {% endif %}
+                </div>
+            </form>
 
-                <form method="GET" action="{{ url_for('book_bp.library_page') }}" class="mb-4 mt-3">
-                    <div class="input-group">
-                        <input type="text" name="q" class="form-control"
-                               placeholder="Kitap adı, Yazar, Kategori veya Barkod ara..."
-                               value="{{ request.args.get('q', '') }}"
-                               style="background-color: rgba(255,255,255,0.1); color: white; border-color: #555;">
-
-                        <div class="input-group-append">
-                            <button class="btn btn-info" type="submit">
-                                <i class="fas fa-search"></i> Ara
-                            </button>
-                            {% if request.args.get('q') %}
-                                <a href="{{ url_for('book_bp.library_page') }}" class="btn btn-danger">
-                                    <i class="fas fa-times"></i> Temizle
-                                </a>
-                            {% endif %}
-                        </div>
-                    </div>
-                </form>
-
-                <div class="glass-panel">
-                    <h2><i class="fas fa-book"></i> Kütüphane Kataloğu</h2>
-                    <p style="color: #ccc;">Ödünç almak istediğiniz kitabı seçiniz</p>
-
-                    <div class="table-responsive">
-                        <table class="table table-custom table-hover">
-                            <thead>
-                            <tr>
-                                <th scope="col">ID</th>
-
-                                <th scope="col">Kapak</th>
-                                <th scope="col">Kitap Adı</th>
-                                <th scope="col">Yazar</th>
-                                <th scope="col">Kategori</th>
-                                <th scope="col">Durum</th>
-                                <th scope="col" style="width: 250px;">İşlemler</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for item in items.items %}
-                                <tr>
-                                    <td>{{ item.id }}</td>
-
-                                    <td>
-                                        <img src="{{ url_for('static', filename='book_pics/' + item.image_file) }}"
-                                             alt="{{ item.name }}"
-                                             style="height: 60px; width: 40px; object-fit: cover; border-radius: 3px;">
-                                    </td>
-                                    <td style="font-weight: bold; color: #fff;">{{ item.name }}</td>
-                                    <td>{{ item.author.name }}</td>
-                                    <td><span class="badge badge-dark">{{ item.category.name }}</span></td>
-                                    <td>
-                                        {% if item.is_available %}
-                                            <span class="badge badge-success p-2"><i class="fas fa-check"></i> Müsait</span>
-                                        {% else %}
-                                            <span class="badge badge-danger p-2"><i class="fas fa-times"></i> Ödünç Verildi</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#Modal-MoreInfo-{{ item.id }}">
-                                            <i class="fas fa-info-circle"></i> Detay
-                                        </button>
-
-                                        {% if current_user.is_admin %}
-                                            <button class="btn btn-sm btn-outline-warning" data-toggle="modal" data-target="#Modal-EditBook-{{ item.id }}">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-
-                                            <a href="{{ url_for('book_bp.delete_book_web', id=item.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Bu kitabı silmek istediğinize emin misiniz?');">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
-
-                                        {% else %}
-                                            {% if item.is_available %}
-                                                <button class="btn btn-sm btn-outline-success" data-toggle="modal" data-target="#Modal-PurchaseConfirm-{{ item.id }}">
-                                                    <i class="fas fa-plus"></i> Al
-                                                </button>
-                                            {% else %}
-                                                <button class="btn btn-sm btn-secondary" disabled>Dolu</button>
-                                            {% endif %}
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    <nav aria-label="Page navigation" class="mt-4">
-                        <ul class="pagination justify-content-center">
-
-                            {% if items.has_prev %}
-                                <li class="page-item">
-                                    <a class="page-link bg-dark text-info border-secondary"
-                                       href="{{ url_for('book_bp.library_page', page=items.prev_num, q=request.args.get('q', '')) }}">
-                                        &laquo; Önceki
-                                    </a>
-                                </li>
-                            {% else %}
-                                <li class="page-item disabled">
-                                    <span class="page-link bg-secondary text-white border-secondary">&laquo; Önceki</span>
-                                </li>
-                            {% endif %}
-
-                            {% for page_num in items.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
-                                {% if page_num %}
-                                    {% if items.page == page_num %}
-                                        <li class="page-item active">
-                                            <span class="page-link bg-info border-info">{{ page_num }}</span>
-                                        </li>
-                                    {% else %}
-                                        <li class="page-item">
-                                            <a class="page-link bg-dark text-info border-secondary"
-                                               href="{{ url_for('book_bp.library_page', page=page_num, q=request.args.get('q', '')) }}">
-                                                {{ page_num }}
-                                            </a>
-                                        </li>
-                                    {% endif %}
-                                {% else %}
-                                    <li class="page-item disabled"><span class="page-link bg-dark text-white border-secondary">...</span></li>
-                                {% endif %}
-                            {% endfor %}
-
-                            {% if items.has_next %}
-                                <li class="page-item">
-                                    <a class="page-link bg-dark text-info border-secondary"
-                                       href="{{ url_for('book_bp.library_page', page=items.next_num, q=request.args.get('q', '')) }}">
-                                        Sonraki &raquo;
-                                    </a>
-                                </li>
-                            {% else %}
-                                <li class="page-item disabled">
-                                    <span class="page-link bg-secondary text-white border-secondary">Sonraki &raquo;</span>
-                                </li>
-                            {% endif %}
-                        </ul>
-                    </nav>
+                <div id="results-area">
+                    {% include 'includes/book_list.html' %}
                 </div>
             </div>
 
-            <div class="col-lg-4">
-                <div class="glass-panel">
-                    <h2><i class="fas fa-book-reader"></i> Üzerimdekiler</h2>
-                    <p style="color: #ccc;">İade etmek için butona tıklayınız</p>
+            <div class="col-lg-3">
+                <div class="glass-panel sticky-top" style="top: 90px; z-index: 1;"> <h4 class="text-center text-info"><i class="fas fa-user-circle"></i> Durumun</h4>
+                    <hr style="background-color: white;">
 
-                    <div class="row">
-                        {% for owned_item in owned_items %}
-                            <div class="col-12">
-                                <div class="card book-card text-center mb-3">
-                                    <div class="card-body">
-                                        <h5 class="card-title" style="color: #00d2ff;">{{ owned_item.name }}</h5>
-                                        <p class="card-text text-muted">
-                                            <small>Yazar: {{ owned_item.author.name }}</small>
-                                        </p>
-                                        <button type="button" class="btn btn-outline-danger btn-block"
-                                                data-toggle="modal" data-target="#Modal-SellingConfirm-{{ owned_item.id }}">
-                                            <i class="fas fa-undo"></i> İade Et
-                                        </button>
+                    {% if owned_items %}
+                        <div class="alert alert-warning text-center">
+                            <strong>{{ owned_items|length }}</strong> kitap ödünç aldın.
+                        </div>
+                        <ul class="list-group list-group-flush text-dark mb-3">
+                            {% for owned_item in owned_items %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center bg-dark text-white border-secondary">
+                                    <span class="text-truncate" style="max-width: 150px;">{{ owned_item.name }}</span>
+                                    <button class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#Modal-Return-{{ owned_item.id }}">
+                                        <i class="fas fa-undo"></i>
+                                    </button>
+                                </li>
+
+                                <div class="modal fade" id="Modal-Return-{{ owned_item.id }}" tabindex="-1" role="dialog" aria-hidden="true">
+                                    <div class="modal-dialog modal-sm">
+                                        <div class="modal-content text-dark">
+                                            <div class="modal-header">
+                                                <h6 class="modal-title">İade: {{ owned_item.name }}</h6>
+                                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form method="POST">
+                                                    <input name="returned_book_id" type="hidden" value="{{ owned_item.id }}">
+                                                    <button class="btn btn-danger btn-block" type="submit">Onayla ve İade Et</button>
+                                                </form>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        {% else %}
-                            <div class="col-12 text-center text-muted">
-                                <br>
-                                <i class="fas fa-box-open fa-3x mb-3"></i>
-                                <p>Şu an ödünç aldığınız kitap yok.</p>
-                            </div>
-                        {% endfor %}
-                    </div>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="text-center text-muted my-5">
+                            <i class="fas fa-check-circle fa-3x mb-3 text-success"></i>
+                            <p>Üzerinde hiç kitap yok.</p>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
+
         </div>
     </div>
-
-    {% if current_user.is_admin %}
-        <div class="modal fade" id="Modal-AddBook" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content modal-content-custom">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Yeni Kitap Ekle</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true" style="color: white;">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <form method="POST" enctype="multipart/form-data">
-                            {{ add_book_form.hidden_tag() }}
-                            <div class="form-group">
-                                <label>Kitap Kapağı</label>
-                                {{ add_book_form.image(class="form-control-file") }} </div>
-                            <div class="form-group">
-                                <label>Kitap Adı</label>
-                                {{ add_book_form.name(class="form-control", placeholder="Kitap Adı") }}
-                            </div>
-                            <div class="form-group">
-                                <label>Yazar</label>
-                                {{ add_book_form.author(class="form-control", placeholder="Yazar Adı") }}
-                            </div>
-                            <div class="form-group">
-                                <label>Kategori</label>
-                                {{ add_book_form.category(class="form-control", placeholder="Kategori") }}
-                            </div>
-                            <div class="form-group">
-                                <label>Barkod</label>
-                                {{ add_book_form.barcode(class="form-control", placeholder="12 Haneli Barkod") }}
-                            </div>
-                            <div class="form-group">
-                                <label>Açıklama</label>
-                                {{ add_book_form.description(class="form-control", placeholder="Kısa Açıklama") }}
-                            </div>
-                            <br>
-                            {{ add_book_form.submit(class="btn btn-lg btn-block btn-success") }}
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    {% endif %}
-
-    {% for item in items.items %}
-
-        <div class="modal fade" id="Modal-MoreInfo-{{ item.id }}" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content modal-content-custom">
-                    <div class="modal-header">
-                        <h5 class="modal-title">{{ item.name }}</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true" style="color: white;">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <p><strong>Yazar:</strong> {{ item.author.name }}</p>
-                        <p><strong>Kategori:</strong> {{ item.category.name }}</p>
-                        <p><strong>Barkod:</strong> {{ item.barcode }}</p>
-                        <p><strong>Açıklama:</strong> {{ item.description }}</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {% if not current_user.is_admin %}
-            <div class="modal fade" id="Modal-PurchaseConfirm-{{ item.id }}" tabindex="-1" role="dialog" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content modal-content-custom">
-                        <div class="modal-header">
-                            <h5 class="modal-title">{{ item.name }}</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true" style="color: white;">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <form method="POST">
-                                <h4 class="text-center">Ödünç almak istiyor musunuz?</h4>
-                                <h6 class="text-center text-muted">Süre: 15 Gün</h6>
-                                <input name="borrowed_book_name" type="hidden" value="{{ item.name }}">
-                                <br>
-                                <input class="btn btn-outline-success btn-block" type="submit" value="Ödünç Al">
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
-
-        {% if current_user.is_admin %}
-            <div class="modal fade" id="Modal-EditBook-{{ item.id }}" tabindex="-1" role="dialog" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content modal-content-custom">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Düzenle: {{ item.name }}</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true" style="color: white;">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <form action="{{ url_for('book_bp.edit_book_web', id=item.id) }}" method="POST">
-                                <div class="form-group">
-                                    <label>Kitap Adı</label>
-                                    <input type="text" name="name" class="form-control" value="{{ item.name }}" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Yazar</label>
-                                    <input type="text" name="author" class="form-control" value="{{ item.author.name }}" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Kategori</label>
-                                    <input type="text" name="category" class="form-control" value="{{ item.category.name }}" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Barkod</label>
-                                    <input type="text" name="barcode" class="form-control" value="{{ item.barcode }}" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Açıklama</label>
-                                    <textarea name="description" class="form-control" rows="3" required>{{ item.description }}</textarea>
-                                </div>
-                                <button type="submit" class="btn btn-warning btn-block">Değişiklikleri Kaydet</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {% endif %}
-
-    {% endfor %}
-
-    {% for owned_item in owned_items %}
-        <div class="modal fade" id="Modal-SellingConfirm-{{ owned_item.id }}" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content modal-content-custom">
-                    <div class="modal-header">
-                        <h5 class="modal-title">{{ owned_item.name }}</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true" style="color: white;">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <form method="POST">
-                            <h4 class="text-center">İade ediyor musunuz?</h4>
-                            <h6 class="text-center text-muted">Ceza kontrolü yapılacaktır.</h6>
-                            <input name="returned_book_name" type="hidden" value="{{ owned_item.name }}">
-                            <br>
-                            <input class="btn btn-outline-danger btn-block" type="submit" value="Kitabı İade Et">
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    {% endfor %}
-
 {% endblock %}

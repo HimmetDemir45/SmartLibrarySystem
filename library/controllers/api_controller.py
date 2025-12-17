@@ -1,8 +1,7 @@
-from flask import Blueprint, jsonify, request
 from flask_login import current_user
-from library.services.book_service import BookService
 from library.services.loan_service import LoanService
-
+from flask import Blueprint, request, render_template, jsonify
+from library.services.book_service import BookService
 api_bp = Blueprint('api_bp', __name__)
 
 # --- GET İŞLEMLERİ ---
@@ -78,3 +77,21 @@ def return_book_api():
 
     status = 200 if result['success'] else 400
     return jsonify(result), status
+
+
+
+@api_bp.route('/api/search_books', methods=['GET'])
+def search_books_live():
+    """
+    Canlı arama için API Endpoint.
+    JSON yerine render edilmiş HTML parçası (partial) döndürür.
+    Böylece Modallar ve Butonlar bozulmadan çalışır.
+    """
+    query = request.args.get('q', '')
+
+    # Servisten kitapları ara (Sayfa 1'den en alakalı 20 sonucu getir)
+    # Not: Canlı aramada genelde pagination yerine ilk X sonuç gösterilir.
+    books_pagination = BookService.search_books(query, page=1)
+
+    # Sadece tablo ve modalları içeren HTML parçasını döndür
+    return render_template('includes/book_list.html', items=books_pagination)

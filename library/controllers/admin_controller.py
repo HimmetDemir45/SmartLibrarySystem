@@ -1,59 +1,88 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
 from flask_login import login_required, current_user
-from library.forms import AddAuthorForm, AddCategoryForm
+from functools import wraps  # (İsim çakışmasını önler)
+from library.forms import AddAuthorForm, AddCategoryForm, AddBookForm
 from library.services.author_service import AuthorService
 from library.services.category_service import CategoryService
+from library.services.book_service import BookService
+from library.services.loan_service import LoanService
+from library.services.file_service import FileService  # Resim kaydetmek için gerekli
 from library import db
 from library.models import User
-from library.services.loan_service import LoanService
 
 admin_bp = Blueprint('admin_bp', __name__)
 
 
 def admin_required(f):
-    """Admin yetkisi gerektiren custom decorator."""
+    @wraps(f)
     @login_required
     def decorated_function(*args, **kwargs):
         if not current_user.is_admin:
             flash("Bu sayfaya erişim yetkiniz yok.", category='danger')
             return redirect(url_for('main_bp.home_page'))
         return f(*args, **kwargs)
+
     return decorated_function
 
 
 @admin_bp.route('/admin_dashboard', methods=['GET', 'POST'])
-@admin_required # Admin yetkisi kontrolü
+@admin_required
 def admin_page():
     # Formları oluştur
     author_form = AddAuthorForm()
     category_form = AddCategoryForm()
+    add_book_form = AddBookForm()  # --- Yeni Eklendi ---
 
-    # Yazar ve Kategori listelerini çek
+    # Verileri çek
     authors = AuthorService.get_all_authors()
     categories = CategoryService.get_all_categories()
-
-    # Tüm kullanıcıları çek
     all_users = User.query.all()
+    active_loans = LoanService.get_all_active_loans_with_fine()
 
     if request.method == 'POST':
-        # Yazar Ekleme İşlemi
-        if author_form.validate_on_submit() and 'author_submit' in request.form:
+        # --- 1. KİTAP EKLEME İŞLEMİ (Buraya Taşındı) ---
+        # 'book_submit' gizli inputunu kontrol ediyoruz (Hangi formun gönderildiğini anlamak için)
+        if 'book_submit' in request.form and add_book_form.validate_on_submit():
+            image_file_name = 'default.jpg'
+            if add_book_form.image.data:
+                image_file_name = FileService.save_picture(add_book_form.image.data)
+
+            BookService.add_book(
+                name=add_book_form.name.data,
+                author=add_book_form.author.data,
+                category=add_book_form.category.data,
+                barcode=add_book_form.barcode.data,
+                description=add_book_form.description.data,
+                image_file=image_file_name
+            )
+            flash(f"'{add_book_form.name.data}' kütüphaneye eklendi!", 'success')
+            return redirect(url_for('admin_bp.admin_page'))
+
+        # --- 2. YAZAR EKLEME ---
+        elif 'author_submit' in request.form and author_form.validate_on_submit():
             AuthorService.add_author(author_form.name.data)
             flash(f"Yazar '{author_form.name.data}' başarıyla eklendi.", 'success')
             return redirect(url_for('admin_bp.admin_page'))
 
-        # Kategori Ekleme İşlemi
-        elif category_form.validate_on_submit() and 'category_submit' in request.form:
+        # --- 3. KATEGORİ EKLEME ---
+        elif 'category_submit' in request.form and category_form.validate_on_submit():
             CategoryService.add_category(category_form.name.data)
             flash(f"Kategori '{category_form.name.data}' başarıyla eklendi.", 'success')
             return redirect(url_for('admin_bp.admin_page'))
 
+    # Formda hata varsa (Validasyon hatası) kullanıcıya göster
+    if add_book_form.errors:
+        for err_msg in add_book_form.errors.values():
+            flash(f"Kitap eklenirken hata: {err_msg}", "danger")
+
     return render_template('admin_dashboard.html',
                            author_form=author_form,
                            category_form=category_form,
+                           add_book_form=add_book_form,  # --- Template'e gönderiyoruz ---
                            authors=authors,
                            categories=categories,
-                            all_users=all_users)
+                           all_users=all_users,
+                           active_loans=active_loans)
 
 
 # --- DÜZENLEME ROTASI (Popup Modal ile yapılacak varsayılır) ---
@@ -86,6 +115,7 @@ def delete_category(category_id):
         flash("Kategori silinemedi (Belki bağlı kitaplar var?).", 'danger')
 
     return redirect(url_for('admin_bp.admin_page'))
+
 
 @admin_bp.route('/admin/forgive_fines/<int:user_id>', methods=['POST'])
 @admin_required
