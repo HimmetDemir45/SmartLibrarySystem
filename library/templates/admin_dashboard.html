@@ -25,6 +25,95 @@
             margin-right: 10px;
             margin-bottom: 10px;
         }
+
+        /* İstatistik Kartları */
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            height: 100%;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .stat-card-books {
+            border-left: 4px solid #00d2ff;
+        }
+
+        .stat-card-books:hover {
+            border-left-color: #00d2ff;
+            box-shadow: 0 10px 30px rgba(0, 210, 255, 0.3);
+        }
+
+        .stat-card-available {
+            border-left: 4px solid #28a745;
+        }
+
+        .stat-card-available:hover {
+            border-left-color: #28a745;
+            box-shadow: 0 10px 30px rgba(40, 167, 69, 0.3);
+        }
+
+        .stat-card-borrowed {
+            border-left: 4px solid #ffc107;
+        }
+
+        .stat-card-borrowed:hover {
+            border-left-color: #ffc107;
+            box-shadow: 0 10px 30px rgba(255, 193, 7, 0.3);
+        }
+
+        .stat-card-users {
+            border-left: 4px solid #dc3545;
+        }
+
+        .stat-card-users:hover {
+            border-left-color: #dc3545;
+            box-shadow: 0 10px 30px rgba(220, 53, 69, 0.3);
+        }
+
+        .stat-icon {
+            font-size: 3rem;
+            margin-right: 20px;
+            opacity: 0.8;
+        }
+
+        .stat-card-books .stat-icon {
+            color: #00d2ff;
+        }
+
+        .stat-card-available .stat-icon {
+            color: #28a745;
+        }
+
+        .stat-card-borrowed .stat-icon {
+            color: #ffc107;
+        }
+
+        .stat-card-users .stat-icon {
+            color: #dc3545;
+        }
+
+        .stat-content h3 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0;
+            color: white;
+        }
+
+        .stat-content p {
+            margin: 5px 0 0 0;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
     </style>
 
     <div class="container-fluid" style="margin-top: 50px;">
@@ -70,7 +159,85 @@
                 </div>
             </div>
         </div>
+        <!-- İstatistik Kartları -->
+        {% if library_stats %}
+        <div class="row mt-4">
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="stat-card stat-card-books">
+                    <div class="stat-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ library_stats.total_books }}</h3>
+                        <p>Toplam Kitap</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="stat-card stat-card-available">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ library_stats.available_books }}</h3>
+                        <p>Müsait Kitap</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="stat-card stat-card-borrowed">
+                    <div class="stat-icon">
+                        <i class="fas fa-book-reader"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ library_stats.borrowed_books }}</h3>
+                        <p>Ödünç Alınan</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="stat-card stat-card-users">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ library_stats.total_users }}</h3>
+                        <p>Toplam Üye</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
 
+        <!-- Grafik Bölümü -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="glass-panel text-center">
+                    <h4 class="text-white"><i class="fas fa-chart-pie"></i> Kategori Dağılımı</h4>
+                    <hr style="background-color: rgba(255,255,255,0.2);">
+                    <canvas id="categoryChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="glass-panel text-center">
+                    <h4 class="text-white"><i class="fas fa-chart-bar"></i> Son 30 Gün</h4>
+                    <hr style="background-color: rgba(255,255,255,0.2);">
+                    <div class="mt-4">
+                        {% if library_stats %}
+                        <h2 class="text-info">{{ library_stats.recent_borrows }}</h2>
+                        <p class="text-muted">Yeni Ödünç Alma</p>
+                        <div class="progress mt-3" style="height: 30px; background-color: rgba(255,255,255,0.1);">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" 
+                                 role="progressbar" 
+                                 style="width: {{ (library_stats.recent_borrows / library_stats.total_borrows * 100) if library_stats.total_borrows > 0 else 0 }}%">
+                                {{ "%.1f"|format((library_stats.recent_borrows / library_stats.total_borrows * 100) if library_stats.total_borrows > 0 else 0) }}%
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="row mt-4">
             <div class="col-md-12">
                 <div class="glass-panel">
@@ -285,4 +452,115 @@
             </div>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // Flask'tan gelen verileri JS değişkenlerine alıyoruz
+        var catLabels = {{ cat_labels | tojson }};
+        var catValues = {{ cat_values | tojson }};
+
+        // Dinamik renk paleti oluştur - her kategori için farklı renk
+        function generateColors(count) {
+            const colors = [
+                'rgba(0, 210, 255, 0.85)',   // Cyan
+                'rgba(255, 107, 107, 0.85)',  // Kırmızı
+                'rgba(255, 193, 7, 0.85)',    // Sarı
+                'rgba(40, 167, 69, 0.85)',    // Yeşil
+                'rgba(108, 117, 125, 0.85)',  // Gri
+                'rgba(255, 87, 34, 0.85)',   // Turuncu
+                'rgba(156, 39, 176, 0.85)',   // Mor
+                'rgba(0, 188, 212, 0.85)',    // Açık Mavi
+                'rgba(76, 175, 80, 0.85)',    // Açık Yeşil
+                'rgba(255, 152, 0, 0.85)',    // Amber
+                'rgba(233, 30, 99, 0.85)',    // Pembe
+                'rgba(63, 81, 181, 0.85)',    // İndigo
+                'rgba(121, 85, 72, 0.85)',    // Kahverengi
+                'rgba(96, 125, 139, 0.85)',   // Mavi Gri
+                'rgba(205, 220, 57, 0.85)',   // Açık Yeşil
+                'rgba(139, 195, 74, 0.85)',   // Açık Yeşil 2
+                'rgba(0, 150, 136, 0.85)',    // Teal
+                'rgba(3, 169, 244, 0.85)',     // Açık Mavi 2
+                'rgba(103, 58, 183, 0.85)',   // Derin Mor
+                'rgba(244, 67, 54, 0.85)'     // Kırmızı 2
+            ];
+            
+            // Eğer daha fazla kategori varsa renkleri tekrarla
+            const result = [];
+            for (let i = 0; i < count; i++) {
+                result.push(colors[i % colors.length]);
+            }
+            return result;
+        }
+
+        var ctx = document.getElementById('categoryChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: catLabels,
+                datasets: [{
+                    label: 'Kitap Sayısı',
+                    data: catValues,
+                    backgroundColor: generateColors(catLabels.length),
+                    borderColor: 'rgba(255, 255, 255, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: 'white',
+                            padding: 15,
+                            font: {
+                                size: 12,
+                                weight: '500'
+                            },
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Kategori Dağılımı',
+                        color: 'white',
+                        font: {
+                            size: 18,
+                            weight: 'bold'
+                        },
+                        padding: {
+                            top: 10,
+                            bottom: 20
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        titleColor: '#00d2ff',
+                        bodyColor: 'white',
+                        borderColor: '#00d2ff',
+                        borderWidth: 2,
+                        padding: 12,
+                        displayColors: true,
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                label += context.parsed + ' kitap';
+                                return label;
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    animateRotate: true,
+                    animateScale: true,
+                    duration: 1500
+                }
+            }
+        });
+    </script>
 {% endblock %}

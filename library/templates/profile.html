@@ -1,175 +1,159 @@
 {% extends 'base.html' %}
 
-{% block title %}
-    Profilim - Akıllı Kütüphane
-{% endblock %}
+{% block title %}Profilim | Himmet Bey{% endblock %}
 
 {% block content %}
-    <div class="container" style="margin-top: 50px;">
+    <div class="container mt-5">
         <div class="row">
-
-            <div class="col-md-4 mb-4">
-                <div class="glass-panel text-center p-4">
-                    <div class="mb-3 d-inline-block p-3 rounded-circle" style="background: rgba(0, 210, 255, 0.1); border: 2px solid #00d2ff;">
-                        <i class="fas fa-user text-info" style="font-size: 4rem;"></i>
+            <div class="col-md-4">
+                <div class="card bg-dark text-white border-info mb-4 shadow">
+                    <div class="card-header text-center bg-info text-dark">
+                        <h5 class="mb-0"><i class="fas fa-id-card"></i> Hesap Özeti</h5>
                     </div>
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-user-circle fa-5x text-info"></i>
+                        </div>
+                        <h4>{{ current_user.username }}</h4>
+                        <p class="text-muted small">{{ current_user.email_address }}</p>
+                        <hr class="bg-secondary">
 
-                    <h3 class="font-weight-bold text-white">{{ current_user.username }}</h3>
-                    <p class="text-muted">{{ current_user.email_address }}</p>
+                        <h6 class="text-uppercase small">Toplam Ceza Borcu</h6>
+                        <h2 class="display-6 {% if total_fine > 0 %}text-danger{% else %}text-success{% endif %}">
+                            {{ "%.2f"|format(total_fine) }} TL
+                        </h2>
 
-                    <hr style="background-color: rgba(255,255,255,0.1);">
-
-                    <div class="mb-4">
-                        <p class="mb-0 text-muted">Mevcut Bakiye</p>
-                        <h1 class="text-success font-weight-bold display-4">
-                            {{ current_user.budget }} <span style="font-size: 1.5rem;">TL</span>
-                        </h1>
+                        {% if total_fine > 0 %}
+                            <p class="text-warning small"><i class="fas fa-exclamation-triangle"></i> Lütfen gecikmiş kitaplarınızı iade edin.</p>
+                        {% else %}
+                            <p class="text-success small"><i class="fas fa-check-circle"></i> Borcunuz bulunmamaktadır.</p>
+                        {% endif %}
                     </div>
-
-                    <button class="btn btn-outline-success btn-block rounded-pill" data-toggle="modal" data-target="#Modal-AddBudget">
-                        <i class="fas fa-wallet mr-2"></i> Bakiye Yükle
-                    </button>
                 </div>
-
-                {% if current_user.is_admin %}
-                    <div class="mt-3">
-                        <a href="{{ url_for('admin_bp.admin_page') }}" class="btn btn-warning btn-block font-weight-bold">
-                            <i class="fas fa-user-shield mr-2"></i> Yönetici Paneline Git
-                        </a>
-                    </div>
-                {% endif %}
             </div>
 
             <div class="col-md-8">
-                <div class="glass-panel p-4">
-
-                    <ul class="nav nav-pills mb-4" id="pills-tab" role="tablist">
-                        <li class="nav-item">
-                            <a class="nav-link active" id="pills-active-tab" data-toggle="pill" href="#pills-active" role="tab">
-                                <i class="fas fa-book-reader mr-2"></i> Okuduklarım
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="pills-history-tab" data-toggle="pill" href="#pills-history" role="tab">
-                                <i class="fas fa-history mr-2"></i> Geçmiş Hareketler
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="pills-settings-tab" data-toggle="pill" href="#pills-settings" role="tab">
-                                <i class="fas fa-cog mr-2"></i> Ayarlar
-                            </a>
-                        </li>
-                    </ul>
-
-                    <hr style="background-color: rgba(255,255,255,0.1);">
-
-                    <div class="tab-content" id="pills-tabContent">
-
-                        <div class="tab-pane fade show active" id="pills-active" role="tabpanel">
-                            <h4 class="text-info mb-3">Şu An Üzerindeki Kitaplar</h4>
-
-                            {% if active_loans %}
-                                <div class="row">
-                                    {% for book in active_loans %}
-                                        <div class="col-md-6 mb-3">
-                                            <div class="card bg-dark border-secondary text-white h-100">
-                                                <div class="card-body">
-                                                    <div class="d-flex align-items-center mb-3">
-                                                        <img src="{{ url_for('static', filename='book_pics/' + book.image_file) }}"
-                                                             style="height: 60px; width: 40px; object-fit: cover; border-radius: 3px; margin-right: 15px;">
-                                                        <div>
-                                                            <h5 class="card-title mb-0 text-truncate" style="max-width: 150px;">{{ book.name }}</h5>
-                                                            <small class="text-muted">{{ book.author.name }}</small>
-                                                        </div>
-                                                    </div>
-                                                    <a href="{{ url_for('book_bp.library_page') }}" class="btn btn-sm btn-outline-danger btn-block">
-                                                        İade Etmek İçin Kataloğa Git
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            {% else %}
-                                <div class="alert alert-secondary text-center">
-                                    <i class="fas fa-info-circle"></i> Şu an ödünç aldığın bir kitap yok.
-                                </div>
-                            {% endif %}
+                <!-- Bildirimler -->
+                {% if notifications and notifications.total > 0 %}
+                <div class="card bg-dark text-white border-warning shadow mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">
+                            <i class="fas fa-bell"></i> Bildirimler 
+                            <span class="badge badge-danger">{{ notifications.total }}</span>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if notifications.overdue %}
+                        <div class="alert alert-danger mb-2">
+                            <h6><i class="fas fa-exclamation-triangle"></i> Gecikmiş Kitaplar</h6>
+                            <ul class="mb-0">
+                                {% for notif in notifications.overdue %}
+                                <li>{{ notif.book_name }} - <strong>{{ notif.days_overdue }} gün gecikmiş</strong></li>
+                                {% endfor %}
+                            </ul>
                         </div>
+                        {% endif %}
+                        {% if notifications.upcoming %}
+                        <div class="alert alert-warning mb-0">
+                            <h6><i class="fas fa-clock"></i> Yaklaşan Son Tarihler</h6>
+                            <ul class="mb-0">
+                                {% for notif in notifications.upcoming %}
+                                <li>{{ notif.book_name }} - <strong>{{ notif.days_left }} gün kaldı</strong></li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
 
-                        <div class="tab-pane fade" id="pills-history" role="tabpanel">
-                            <h4 class="text-warning mb-3">Kütüphane Geçmişin</h4>
+                <!-- İstatistikler -->
+                {% if user_stats %}
+                <div class="card bg-dark text-white border-info shadow mb-4">
+                    <div class="card-header bg-info text-dark">
+                        <h5 class="mb-0"><i class="fas fa-chart-bar"></i> İstatistiklerim</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-4 mb-3">
+                                <h3 class="text-info">{{ user_stats.total_borrows }}</h3>
+                                <p class="text-muted mb-0">Toplam Ödünç</p>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <h3 class="text-warning">{{ user_stats.active_borrows }}</h3>
+                                <p class="text-muted mb-0">Aktif Kitap</p>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <h3 class="text-danger">{{ "%.2f"|format(user_stats.total_fine) }} TL</h3>
+                                <p class="text-muted mb-0">Toplam Ceza</p>
+                            </div>
+                        </div>
+                        {% if user_stats.favorite_categories %}
+                        <hr class="bg-secondary">
+                        <h6 class="text-info">En Çok Okuduğunuz Kategoriler:</h6>
+                        <div class="mt-2">
+                            {% for cat in user_stats.favorite_categories %}
+                            <span class="badge badge-secondary mr-2 mb-2">
+                                {{ cat.name }} ({{ cat.count }})
+                            </span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Aktif Kitaplar -->
+                <div class="card bg-dark text-white border-success shadow">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-book-reader"></i> Şu An Sizde Olan Kitaplar</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if active_books %}
                             <div class="table-responsive">
-                                <table class="table table-sm table-dark table-hover">
+                                <table class="table table-dark table-hover">
                                     <thead>
                                     <tr>
-                                        <th>Kitap Adı</th>
-                                        <th>Alış Tarihi</th>
-                                        <th>Durum</th>
+                                        <th>Kitap</th>
+                                        <th>Yazar</th>
+                                        <th>Barkod</th>
+                                        <th class="text-center">Durum</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    {% for record in history %}
+                                    {% for book in active_books %}
                                         <tr>
-                                            <td>{{ record.book.name }}</td>
-                                            <td>{{ record.borrow_date.strftime('%d.%m.%Y') }}</td>
                                             <td>
-                                                {% if record.return_date %}
-                                                    <span class="badge badge-success">İade Edildi</span>
-                                                    <small class="text-muted ml-1">{{ record.return_date.strftime('%d.%m.%Y') }}</small>
-                                                {% else %}
-                                                    <span class="badge badge-warning text-dark">Okunuyor...</span>
-                                                {% endif %}
+                                                <strong>{{ book.name }}</strong>
                                             </td>
-                                        </tr>
-                                    {% else %}
-                                        <tr>
-                                            <td colspan="3" class="text-center">Henüz bir işlem geçmişi yok.</td>
+                                            <td>{{ book.author.name }}</td>
+                                            <td><code>{{ book.barcode }}</code></td>
+                                            <td class="text-center">
+                                                <span class="badge badge-pill badge-warning text-dark">Emanet</span>
+                                            </td>
                                         </tr>
                                     {% endfor %}
                                     </tbody>
                                 </table>
                             </div>
-                        </div>
-
-                        <div class="tab-pane fade" id="pills-settings" role="tabpanel">
-                            <h4 class="text-secondary mb-3">Hesap Ayarları</h4>
-                            <form>
-                                <div class="form-group">
-                                    <label>Kullanıcı Adı</label>
-                                    <input type="text" class="form-control form-control-modern" value="{{ current_user.username }}" disabled>
-                                </div>
-                                <div class="form-group">
-                                    <label>E-Posta</label>
-                                    <input type="email" class="form-control form-control-modern" value="{{ current_user.email_address }}" disabled>
-                                </div>
-                                <button class="btn btn-secondary" disabled>Bilgileri Güncelle (Yakında)</button>
-                            </form>
-                        </div>
-
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-books fa-3x text-muted mb-3"></i>
+                                <p class="lead">Şu an elinizde ödünç alınmış bir kitap bulunmuyor.</p>
+                                <a href="{{ url_for('book_bp.library_page') }}" class="btn btn-outline-info mt-2">
+                                    <i class="fas fa-search"></i> Kitap Raflarına Göz At
+                                </a>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="modal fade" id="Modal-AddBudget" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content text-dark">
-                <div class="modal-header">
-                    <h5 class="modal-title">Bakiye Yükle</h5>
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <p>Kredi kartı entegrasyonu henüz aktif değil.</p>
-                    <div class="form-group">
-                        <label>Yüklenecek Tutar (TL)</label>
-                        <input type="number" class="form-control" placeholder="100">
-                    </div>
-                    <button class="btn btn-success btn-block" disabled>Ödeme Yap</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    <style>
+        .card { border-radius: 15px; overflow: hidden; }
+        .table-dark { background-color: rgba(255,255,255,0.05); }
+        .badge-pill { padding-left: 15px; padding-right: 15px; }
+    </style>
 {% endblock %}

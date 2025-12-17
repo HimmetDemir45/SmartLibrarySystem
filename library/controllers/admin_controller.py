@@ -7,8 +7,13 @@ from library.services.category_service import CategoryService
 from library.services.book_service import BookService
 from library.services.loan_service import LoanService
 from library.services.file_service import FileService  # Resim kaydetmek için gerekli
+from library.services.stats_service import StatsService  # İstatistikler için
+from library.services.report_service import ReportService  # Raporlar için
+from library.repositories.user_repository import UserRepository
 from library import db
-from library.models import User
+from sqlalchemy import func
+from library.models.book import Book
+from library.models.category import Category
 
 admin_bp = Blueprint('admin_bp', __name__)
 
@@ -36,7 +41,8 @@ def admin_page():
     # Verileri çek
     authors = AuthorService.get_all_authors()
     categories = CategoryService.get_all_categories()
-    all_users = User.query.all()
+    user_repo = UserRepository()
+    all_users = user_repo.get_all()
     active_loans = LoanService.get_all_active_loans_with_fine()
 
     if request.method == 'POST':
@@ -74,16 +80,35 @@ def admin_page():
     if add_book_form.errors:
         for err_msg in add_book_form.errors.values():
             flash(f"Kitap eklenirken hata: {err_msg}", "danger")
+            # --- GRAFİK VERİLERİ ---
+    # Kategorilere göre kitap sayılarını gruplayıp sayıyoruz
+    # SQL Karşılığı: SELECT name, COUNT(book.id) FROM category JOIN book ... GROUP BY category.id
+    cat_stats = db.session.query(Category.name, func.count(Book.id)) \
+        .outerjoin(Book, Book.category_id == Category.id) \
+        .group_by(Category.id).all()
+
+    # Chart.js'in anlayacağı liste formatına çeviriyoruz
+    cat_labels = [stat[0] for stat in cat_stats] # Örn: ['Roman', 'Bilim Kurgu']
+    cat_values = [stat[1] for stat in cat_stats] # Örn: [15, 8]
+
+    # İstatistikleri çek
+    library_stats = StatsService.get_library_stats()
+    
+    # Aylık raporu çek
+    monthly_report = ReportService.generate_monthly_report()
 
     return render_template('admin_dashboard.html',
                            author_form=author_form,
                            category_form=category_form,
-                           add_book_form=add_book_form,  # --- Template'e gönderiyoruz ---
+                           add_book_form=add_book_form,
                            authors=authors,
                            categories=categories,
                            all_users=all_users,
-                           active_loans=active_loans)
-
+                           active_loans=active_loans,
+                           cat_labels=cat_labels,
+                           cat_values=cat_values,
+                           library_stats=library_stats,
+                           monthly_report=monthly_report)
 
 # --- DÜZENLEME ROTASI (Popup Modal ile yapılacak varsayılır) ---
 @admin_bp.route('/admin/update_author/<int:author_id>', methods=['POST'])
@@ -120,8 +145,9 @@ def delete_category(category_id):
 @admin_bp.route('/admin/forgive_fines/<int:user_id>', methods=['POST'])
 @admin_required
 def forgive_fines(user_id):
-    # Kullanıcıyı bul
-    user = User.query.get(user_id)
+    # Kullanıcıyı bul (Repository pattern kullanarak)
+    user_repo = UserRepository()
+    user = user_repo.get_by_id(user_id)
 
     if not user:
         flash(f"Kullanıcı (ID: {user_id}) bulunamadı.", 'danger')

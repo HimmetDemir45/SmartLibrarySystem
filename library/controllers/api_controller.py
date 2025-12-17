@@ -2,27 +2,44 @@ from flask_login import current_user
 from library.services.loan_service import LoanService
 from flask import Blueprint, request, render_template, jsonify
 from library.services.book_service import BookService
+
 api_bp = Blueprint('api_bp', __name__)
 
-# --- GET İŞLEMLERİ ---
+# --- GET İŞLEMLERİ (SAYFALAMA EKLENDİ) ---
 
 @api_bp.route('/api/books', methods=['GET'])
 def get_all_books():
-    books = BookService.get_all_books()
+    # URL'den sayfa numarasını al (örn: /api/books?page=2), yoksa 1. sayfa
+    page = request.args.get('page', 1, type=int)
+
+    # Servisten Pagination objesi döner
+    pagination = BookService.get_all_books(page=page)
+
     output = []
-    for book in books:
+    for book in pagination.items:  # .items diyerek o sayfadaki kitapları alıyoruz
         book_data = {
             'id': book.id,
             'name': book.name,
             'barcode': book.barcode,
             'description': book.description,
-            'author': book.author.name,
-            'category': book.category.name,
-            'is_available': book.is_available
+            'author': book.author.name if book.author else "Bilinmiyor",
+            'category': book.category.name if book.category else "Genel",
+            'is_available': book.is_available,
+            'image_file': book.image_file
         }
         output.append(book_data)
 
-    return jsonify({'success': True, 'data': output}), 200
+    return jsonify({
+        'success': True,
+        'data': output,
+        'meta': {
+            'page': pagination.page,
+            'pages': pagination.pages,
+            'total_items': pagination.total,
+            'has_next': pagination.has_next,
+            'has_prev': pagination.has_prev
+        }
+    }), 200
 
 @api_bp.route('/api/book/<int:id>', methods=['GET'])
 def get_book(id):
@@ -40,23 +57,25 @@ def get_book(id):
         }), 200
     return jsonify({'success': False, 'message': 'Kitap bulunamadı'}), 404
 
-# --- POST (ÖDÜNÇ/İADE) İŞLEMLERİ ---
+# --- POST (ÖDÜNÇ/İADE) İŞLEMLERİ (BARKOD SİSTEMİNE GEÇİLDİ) ---
 
 @api_bp.route('/api/borrow', methods=['POST'])
 def borrow_book_api():
-    # API Testleri için login kontrolünü kapatabilir veya token bazlı yapabilirsin.
-    # Şimdilik basit tutuyoruz:
     if not current_user.is_authenticated:
         return jsonify({'success': False, 'message': 'Giriş yapmalısınız.'}), 401
 
-    book_name = request.form.get('book_name')
-    # İsimden ID bulmak için basit bir mantık veya direkt ID alabiliriz.
-    # Mevcut yapına sadık kalarak isimden kitap bulalım:
-    books = BookService.search_books(book_name)
-    if not books:
-        return jsonify({'success': False, 'message': 'Kitap bulunamadı'}), 404
+    # Artık isim yerine BARKOD bekliyoruz
+    barcode = request.form.get('barcode')
 
-    book = books[0] # İlk eşleşen
+    if not barcode:
+        return jsonify({'success': False, 'message': 'Barkod parametresi zorunludur.'}), 400
+
+    book = BookService.get_book_by_barcode(barcode)
+
+    if not book:
+        return jsonify({'success': False, 'message': 'Bu barkoda sahip kitap bulunamadı.'}), 404
+
+    # Ödünç alma servisini çağır
     result = LoanService.borrow_book(current_user.id, book.id)
 
     status = 200 if result['success'] else 400
@@ -67,31 +86,27 @@ def return_book_api():
     if not current_user.is_authenticated:
         return jsonify({'success': False, 'message': 'Giriş yapmalısınız.'}), 401
 
-    book_name = request.form.get('book_name')
-    books = BookService.search_books(book_name)
-    if not books:
-        return jsonify({'success': False, 'message': 'Kitap bulunamadı'}), 404
+    barcode = request.form.get('barcode')
 
-    book = books[0]
+    if not barcode:
+        return jsonify({'success': False, 'message': 'Barkod parametresi zorunludur.'}), 400
+
+    book = BookService.get_book_by_barcode(barcode)
+
+    if not book:
+        return jsonify({'success': False, 'message': 'Bu barkoda sahip kitap bulunamadı.'}), 404
+
     result = LoanService.return_book(current_user.id, book.id)
 
     status = 200 if result['success'] else 400
     return jsonify(result), status
 
-
-
 @api_bp.route('/api/search_books', methods=['GET'])
 def search_books_live():
-    """
-    Canlı arama için API Endpoint.
-    JSON yerine render edilmiş HTML parçası (partial) döndürür.
-    Böylece Modallar ve Butonlar bozulmadan çalışır.
-    """
+    """Canlı arama (HTML partial döndürür)"""
     query = request.args.get('q', '')
+    page = request.args.get('page', 1, type=int)
 
-    # Servisten kitapları ara (Sayfa 1'den en alakalı 20 sonucu getir)
-    # Not: Canlı aramada genelde pagination yerine ilk X sonuç gösterilir.
-    books_pagination = BookService.search_books(query, page=1)
+    books_pagination = BookService.search_books(query, page=page)
 
-    # Sadece tablo ve modalları içeren HTML parçasını döndür
     return render_template('includes/book_list.html', items=books_pagination)

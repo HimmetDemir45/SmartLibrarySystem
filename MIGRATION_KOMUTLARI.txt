@@ -1,0 +1,60 @@
+===========================================
+MIGRATION ÇALIŞTIRMA KOMUTLARI
+===========================================
+
+SEÇENEK 1: VERİTABANINI YENİDEN OLUŞTUR (ÖNERİLEN)
+---------------------------------------------------
+Eğer veritabanında önemli veri yoksa, en kolay yol:
+
+    python seed.py
+
+Bu komut:
+✓ Mevcut veritabanını siler
+✓ Yeni tabloları oluşturur (barcode unique olmadan)
+✓ Seed data ekler
+✓ Tüm değişiklikleri uygular
+
+
+SEÇENEK 2: FLASK-MIGRATE İLE MIGRATION
+---------------------------------------------------
+Eğer mevcut verileri korumak istiyorsanız:
+
+1. Flask-Migrate modülünü yükleyin:
+   pip install flask-migrate
+
+2. Mevcut migration durumunu kontrol edin:
+   flask db current
+
+3. Migration'ı uygulayın:
+   flask db upgrade
+
+4. Durumu kontrol edin:
+   flask db history
+
+
+SORUN GİDERME
+---------------------------------------------------
+Eğer "flask db" komutu çalışmıyorsa:
+
+1. FLASK_APP ortam değişkenini ayarlayın:
+   Windows PowerShell:
+   $env:FLASK_APP="run.py"
+   
+   Windows CMD:
+   set FLASK_APP=run.py
+   
+   Linux/Mac:
+   export FLASK_APP=run.py
+
+2. Tekrar deneyin:
+   flask db upgrade
+
+
+SQLITE KULLANICILARI İÇİN NOT
+---------------------------------------------------
+SQLite bazı ALTER TABLE işlemlerini desteklemez.
+Bu durumda SEÇENEK 1'i (seed.py) kullanmanız önerilir.
+
+
+===========================================
+

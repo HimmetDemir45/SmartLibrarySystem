@@ -25,22 +25,139 @@ body {
     text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
 }
 
-.nav-link {
-    color: rgba(255, 255, 255, 0.7) !important;
+.nav-link-modern {
+    color: rgba(255, 255, 255, 0.8) !important;
     font-weight: 500;
     transition: all 0.3s ease;
-    margin-left: 10px;
+    margin: 0 8px;
+    padding: 8px 16px !important;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
 }
 
-.nav-link:hover {
+.nav-link-modern::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 210, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.nav-link-modern:hover::before {
+    left: 100%;
+}
+
+.nav-link-modern:hover {
     color: #00d2ff !important;
-    text-shadow: 0 0 15px rgba(0, 210, 255, 0.6);
+    background: rgba(0, 210, 255, 0.1);
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 210, 255, 0.2);
 }
 
-.nav-link.active {
-    color: #00d2ff !important;
-    border-bottom: 2px solid #00d2ff;
+.nav-link-modern .nav-icon {
+    margin-right: 8px;
+    font-size: 1.1em;
+    transition: transform 0.3s ease;
+}
+
+.nav-link-modern:hover .nav-icon {
+    transform: scale(1.2) rotate(5deg);
+}
+
+.nav-link-admin {
+    color: #ffc107 !important;
+}
+
+.nav-link-admin:hover {
+    color: #ffc107 !important;
+    background: rgba(255, 193, 7, 0.1);
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+}
+
+.nav-link-user {
+    color: #90ee90 !important;
+    font-weight: bold;
+}
+
+.nav-link-register {
+    background: linear-gradient(135deg, rgba(0, 210, 255, 0.2), rgba(58, 123, 213, 0.2));
+    border: 1px solid rgba(0, 210, 255, 0.3);
+}
+
+.nav-link-register:hover {
+    background: linear-gradient(135deg, rgba(0, 210, 255, 0.3), rgba(58, 123, 213, 0.3));
+}
+
+.brand-icon {
+    color: #00d2ff;
+    margin-right: 10px;
+    font-size: 1.5em;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+.brand-text {
+    font-weight: bold;
+    letter-spacing: 1.5px;
+    background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.pulse-badge {
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% {
+        box-shadow: 0 0 5px rgba(255, 193, 7, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(255, 193, 7, 0.8);
+    }
+}
+
+/* Dropdown Menu */
+.dropdown-menu-modern {
+    background: rgba(30, 30, 30, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    padding: 10px 0;
+    margin-top: 10px;
+}
+
+.dropdown-item {
+    color: rgba(255, 255, 255, 0.8);
+    padding: 10px 20px;
+    transition: all 0.3s ease;
+}
+
+.dropdown-item:hover {
+    background: rgba(0, 210, 255, 0.1);
+    color: #00d2ff;
+    padding-left: 25px;
+}
+
+.dropdown-divider {
+    border-color: rgba(255, 255, 255, 0.1);
+    margin: 8px 0;
 }
 
 /* İkonlar */
@@ -131,4 +248,292 @@ body {
 .auth-link:hover {
     color: white;
     text-decoration: underline;
+}
+
+/* ===== KÜTÜPHANE SAYFASI ÖZEL STİLLER ===== */
+
+/* Sidebar Panel */
+.sidebar-panel {
+    animation: slideInRight 0.5s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Ödünç Alınan Kitaplar Listesi */
+.owned-books-alert {
+    background: linear-gradient(135deg, rgba(0, 210, 255, 0.2), rgba(58, 123, 213, 0.2));
+    border: 1px solid rgba(0, 210, 255, 0.3);
+    border-radius: 10px;
+    color: #00d2ff;
+    font-weight: 500;
+}
+
+.owned-books-list {
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.owned-books-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.owned-books-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+.owned-books-list::-webkit-scrollbar-thumb {
+    background: rgba(0, 210, 255, 0.5);
+    border-radius: 10px;
+}
+
+.owned-books-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 210, 255, 0.7);
+}
+
+.owned-book-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+}
+
+.owned-book-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(0, 210, 255, 0.5);
+    transform: translateX(-3px);
+    box-shadow: 0 4px 12px rgba(0, 210, 255, 0.2);
+}
+
+.btn-return-modern {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+    border: none;
+    color: white;
+    border-radius: 8px;
+    padding: 8px 12px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+}
+
+.btn-return-modern:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.5);
+    color: white;
+}
+
+.btn-return-modern:active {
+    transform: scale(0.95);
+}
+
+/* İade Modal */
+.return-modal-content {
+    background: linear-gradient(135deg, #1e1e1e, #2d2d2d);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    color: white;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.return-modal-header {
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(238, 90, 111, 0.2));
+    border-bottom: 1px solid rgba(255, 107, 107, 0.3);
+    border-radius: 15px 15px 0 0;
+}
+
+.return-btn {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+    border: none;
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+}
+
+.return-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+    color: white;
+}
+
+.return-btn:active {
+    transform: translateY(0);
+}
+
+.empty-state {
+    padding: 30px 20px;
+}
+
+.empty-state i {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+}
+
+/* Arama Çubuğu İyileştirmeleri */
+#search-input {
+    transition: all 0.3s ease;
+}
+
+#search-input:focus {
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(0, 210, 255, 0.3);
+}
+
+/* Navbar İyileştirmeleri */
+.navbar-custom {
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
+}
+
+.navbar-brand {
+    font-size: 1.3rem;
+    transition: all 0.3s ease;
+}
+
+.navbar-brand:hover {
+    transform: scale(1.05);
+}
+
+.nav-item {
+    transition: all 0.3s ease;
+}
+
+.nav-item:hover {
+    transform: translateY(-2px);
+}
+
+/* Badge İyileştirmeleri */
+.badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.badge-success {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.badge-danger {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+.badge-secondary {
+    background: linear-gradient(135deg, #6c757d, #5a6268);
+}
+
+/* Buton Animasyonları */
+.btn {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+/* Modal Animasyonları */
+.modal.fade .modal-dialog {
+    transition: transform 0.3s ease-out;
+    transform: translate(0, -50px);
+}
+
+.modal.show .modal-dialog {
+    transform: translate(0, 0);
+}
+
+/* Ripple Efekt */
+.btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.6);
+    transform: scale(0);
+    animation: ripple-animation 0.6s ease-out;
+    pointer-events: none;
+}
+
+@keyframes ripple-animation {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* Loading Spinner */
+.fa-spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive İyileştirmeler */
+@media (max-width: 768px) {
+    .sidebar-panel {
+        margin-top: 20px;
+        position: relative !important;
+    }
+    
+    .owned-books-list {
+        max-height: 300px;
+    }
+    
+    .navbar-brand {
+        font-size: 1.1rem;
+    }
+    
+    .return-modal-content {
+        margin: 10px;
+    }
 }
