@@ -59,28 +59,59 @@ class LoanService:
     def return_book(user_id, book_id):
         try:
             book = LoanService.book_repo.get_by_id(book_id)
+            logger.info(f"İade işlemi başladı | user_id={user_id}, book_id={book_id}, book={book}")
             if not book:
+                logger.warning(f"İade işlemi - kitap bulunamadı | user_id={user_id}, book_id={book_id}")
                 return {"success": False, "message": "Kitap bulunamadı."}
 
             active_borrow = LoanService.borrow_repo.get_active_borrow(user_id, book_id)
+            logger.info(f"Aktif ödünç sorgusu: {active_borrow}")
 
             if not active_borrow:
+                # Detaylıca hangi kayıtlar var göster
+                from library.models.borrow import Borrow
+                open_borrows = Borrow.query.filter_by(book_id=book_id, user_id=user_id, return_date=None).all()
+                logger.error(f"İade işlemi için aktif borç bulunamadı. DB'de return_date=None ile görünen kayıtlar: {open_borrows}")
                 return {"success": False, "message": "Bu kitap zaten sizde görünmüyor."}
 
-            active_borrow.return_date = datetime.now(timezone.utc)
+            now = datetime.now(timezone.utc)
+            logger.info(f"İade zamanı: {now}, Önceki return_date: {active_borrow.return_date}")
+            active_borrow.return_date = now
             book.is_available = True
-            
+
+            # Gecikme cezası hesaplama
+            fine_amount = 0.0
+            if active_borrow.due_date:
+                due_date = active_borrow.due_date
+                if due_date.tzinfo is None:
+                    due_date = due_date.replace(tzinfo=timezone.utc)
+                logger.info(f"Due Date: {due_date}, Bugün: {now}")
+                if now > due_date:
+                    days_overdue = (now - due_date).days
+                    daily_fee = current_app.config.get('DAILY_FINE', 50.0)
+                    fine_amount = days_overdue * daily_fee
+                    active_borrow.fine_amount = fine_amount
+                    logger.info(f"Gecikme cezası hesaplandı: {fine_amount} TL ({days_overdue} gün) - User: {user_id}, Book: {book_id}")
+
             # Tek transaction içinde kaydet
+            logger.info(f"Veritabanı commit öncesi | active_borrow: {active_borrow}, fine_amount: {fine_amount}")
             db.session.commit()
-            return {"success": True, "message": f"{book.name} iade edildi."}
+            logger.info(f"Veritabanı commit sonrası | active_borrow: {active_borrow}")
+            
+            message = f"{book.name} iade edildi."
+            if fine_amount > 0:
+                message += f" Gecikme cezası: {fine_amount:.2f} TL"
+
+            logger.info(f"İade işlemi başarıyla tamamlandı | user_id={user_id}, book_id={book_id}, fine_amount={fine_amount}")
+            return {"success": True, "message": message, "fine_amount": fine_amount}
 
         except SQLAlchemyError as e:
             db.session.rollback()
-            logger.error(f"İade hatası (user_id={user_id}, book_id={book_id}): {str(e)}")
+            logger.error(f"İade hatası (user_id={user_id}, book_id={book_id}): {str(e)}", exc_info=True)
             return {"success": False, "message": "Bir hata oluştu. Lütfen tekrar deneyin."}
         except Exception as e:
             db.session.rollback()
-            logger.error(f"Beklenmeyen hata (return_book): {str(e)}")
+            logger.error(f"Beklenmeyen hata (return_book): {str(e)}", exc_info=True)
             return {"success": False, "message": "Bir hata oluştu. Lütfen tekrar deneyin."}
 
     @staticmethod

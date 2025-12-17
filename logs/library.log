@@ -18,3 +18,8 @@
 2025-12-17 18:05:37,139 INFO: Library uygulamasý baþlatýldý [in C:\Users\himmo\Desktop\e\projeVT\library\__init__.py:33]
 2025-12-17 18:05:41,007 INFO: Library uygulamasý baþlatýldý [in C:\Users\himmo\Desktop\e\projeVT\library\__init__.py:33]
 2025-12-17 18:06:19,328 ERROR: Kullanýcý istatistik hatasý (user_id=3): Entity namespace for "category" has no property "user_id" [in C:\Users\himmo\Desktop\e\projeVT\library\services\stats_service.py:96]
+2025-12-17 18:24:35,983 INFO: Library uygulamasý baþlatýldý [in C:\Users\himmo\Desktop\e\projeVT\library\__init__.py:33]
+2025-12-17 18:24:44,564 ERROR: Kullanýcý istatistik hatasý (user_id=3): Entity namespace for "category" has no property "user_id" [in C:\Users\himmo\Desktop\e\projeVT\library\services\stats_service.py:96]
+2025-12-17 18:25:01,785 ERROR: Kullanýcý istatistik hatasý (user_id=3): Entity namespace for "category" has no property "user_id" [in C:\Users\himmo\Desktop\e\projeVT\library\services\stats_service.py:96]
+2025-12-17 18:39:05,638 INFO: Library uygulamasý baþlatýldý [in C:\Users\himmo\Desktop\e\projeVT\library\__init__.py:33]
+2025-12-17 18:39:59,272 ERROR: Kullanýcý istatistik hatasý (user_id=3): Entity namespace for "category" has no property "user_id" [in C:\Users\himmo\Desktop\e\projeVT\library\services\stats_service.py:96]

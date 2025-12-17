@@ -123,12 +123,16 @@ class BookService:
                 return None
 
             # Temel Bilgiler
-            if 'name' in data: 
+            if 'name' in data and data['name']: 
                 book.name = data['name']
-            if 'barcode' in data: 
+            if 'barcode' in data and data['barcode']: 
                 book.barcode = data['barcode']
-            if 'description' in data: 
+            if 'description' in data and data['description']: 
                 book.description = data['description']
+            
+            # Resim güncelleme
+            if 'image_file' in data and data['image_file']:
+                book.image_file = data['image_file']
 
             # İlişkisel Veriler (Yazar/Kategori) - Helper metodları kullan
             if 'author' in data and data['author']:

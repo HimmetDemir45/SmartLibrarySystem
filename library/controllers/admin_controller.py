@@ -66,14 +66,24 @@ def admin_page():
 
         # --- 2. YAZAR EKLEME ---
         elif 'author_submit' in request.form and author_form.validate_on_submit():
-            AuthorService.add_author(author_form.name.data)
-            flash(f"Yazar '{author_form.name.data}' başarıyla eklendi.", 'success')
+            try:
+                AuthorService.add_author(author_form.name.data)
+                flash(f"Yazar '{author_form.name.data}' başarıyla eklendi.", 'success')
+            except ValueError as e:
+                flash(f"Yazar eklenemedi: {str(e)}", 'danger')
+            except Exception as e:
+                flash(f"Yazar eklenirken hata oluştu: {str(e)}", 'danger')
             return redirect(url_for('admin_bp.admin_page'))
 
         # --- 3. KATEGORİ EKLEME ---
         elif 'category_submit' in request.form and category_form.validate_on_submit():
-            CategoryService.add_category(category_form.name.data)
-            flash(f"Kategori '{category_form.name.data}' başarıyla eklendi.", 'success')
+            try:
+                CategoryService.add_category(category_form.name.data)
+                flash(f"Kategori '{category_form.name.data}' başarıyla eklendi.", 'success')
+            except ValueError as e:
+                flash(f"Kategori eklenemedi: {str(e)}", 'danger')
+            except Exception as e:
+                flash(f"Kategori eklenirken hata oluştu: {str(e)}", 'danger')
             return redirect(url_for('admin_bp.admin_page'))
 
     # Formda hata varsa (Validasyon hatası) kullanıcıya göster
@@ -119,11 +129,16 @@ def update_author(author_id):
         flash("İsim boş bırakılamaz.", 'danger')
         return redirect(url_for('admin_bp.admin_page'))
 
-    success = AuthorService.update_author(author_id, new_name)
-    if success:
-        flash(f"Yazar (ID: {author_id}) başarıyla güncellendi.", 'success')
-    else:
-        flash("Yazar güncellenemedi veya bulunamadı.", 'danger')
+    try:
+        success = AuthorService.update_author(author_id, new_name)
+        if success:
+            flash(f"Yazar (ID: {author_id}) başarıyla güncellendi.", 'success')
+        else:
+            flash("Yazar güncellenemedi veya bulunamadı.", 'danger')
+    except ValueError as e:
+        flash(f"Yazar güncellenemedi: {str(e)}", 'danger')
+    except Exception as e:
+        flash(f"Yazar güncellenirken hata oluştu: {str(e)}", 'danger')
 
     return redirect(url_for('admin_bp.admin_page'))
 
@@ -132,12 +147,16 @@ def update_author(author_id):
 @admin_bp.route('/admin/delete_category/<int:category_id>', methods=['POST'])
 @admin_required
 def delete_category(category_id):
-    # Gerçek uygulamada önce bağlı kitap kontrolü yapılmalıdır.
-    success = CategoryService.delete_category(category_id)
-    if success:
-        flash("Kategori başarıyla silindi.", 'success')
-    else:
-        flash("Kategori silinemedi (Belki bağlı kitaplar var?).", 'danger')
+    try:
+        success = CategoryService.delete_category(category_id)
+        if success:
+            flash("Kategori başarıyla silindi.", 'success')
+        else:
+            flash("Kategori silinemedi veya bulunamadı.", 'danger')
+    except ValueError as e:
+        flash(f"Kategori silinemedi: {str(e)}", 'danger')
+    except Exception as e:
+        flash(f"Kategori silinirken hata oluştu: {str(e)}", 'danger')
 
     return redirect(url_for('admin_bp.admin_page'))
 
@@ -161,5 +180,77 @@ def forgive_fines(user_id):
     else:
         # Hata genellikle veritabanı prosedüründe (sp_ForgiveFines) bir sorun olduğunda oluşur.
         flash(f"Cezalar affedilemedi. Veritabanı prosedürü hatası olabilir.", 'danger')
+
+    return redirect(url_for('admin_bp.admin_page'))
+
+
+@admin_bp.route('/admin/update_book/<int:book_id>', methods=['POST'])
+@admin_required
+def update_book(book_id):
+    """Kitap güncelleme route'u"""
+    try:
+        book = BookService.get_book_by_id(book_id)
+        if not book:
+            flash(f"Kitap (ID: {book_id}) bulunamadı.", 'danger')
+            return redirect(url_for('admin_bp.admin_page'))
+
+        # Form verilerini al
+        update_data = {
+            'name': request.form.get('name'),
+            'author': request.form.get('author'),
+            'category': request.form.get('category'),
+            'barcode': request.form.get('barcode'),
+            'description': request.form.get('description')
+        }
+
+        # Resim güncelleme kontrolü
+        if 'image' in request.files:
+            image_file = request.files['image']
+            if image_file and image_file.filename:
+                image_file_name = FileService.save_picture(image_file)
+                update_data['image_file'] = image_file_name
+
+        # Kitabı güncelle
+        updated_book = BookService.update_book(book_id, update_data)
+        
+        if updated_book:
+            flash(f"'{updated_book.name}' başarıyla güncellendi.", 'success')
+        else:
+            flash("Kitap güncellenemedi.", 'danger')
+
+    except Exception as e:
+        flash(f"Kitap güncellenirken hata oluştu: {str(e)}", 'danger')
+
+    return redirect(url_for('admin_bp.admin_page'))
+
+
+@admin_bp.route('/admin/delete_book/<int:book_id>', methods=['POST'])
+@admin_required
+def delete_book(book_id):
+    """Kitap silme route'u"""
+    try:
+        book = BookService.get_book_by_id(book_id)
+        if not book:
+            flash(f"Kitap (ID: {book_id}) bulunamadı.", 'danger')
+            return redirect(url_for('admin_bp.admin_page'))
+
+        # Aktif ödünç kontrolü
+        active_borrows = LoanService.borrow_repo.get_all_active()
+        book_has_active_borrows = any(b.book_id == book_id for b in active_borrows)
+        
+        if book_has_active_borrows:
+            flash(f"'{book.name}' kitabı şu anda ödünç alınmış durumda. Önce iade edilmesi gerekir.", 'danger')
+            return redirect(url_for('admin_bp.admin_page'))
+
+        # Kitabı sil
+        success = BookService.delete_book(book_id)
+        
+        if success:
+            flash(f"'{book.name}' başarıyla silindi.", 'success')
+        else:
+            flash("Kitap silinemedi.", 'danger')
+
+    except Exception as e:
+        flash(f"Kitap silinirken hata oluştu: {str(e)}", 'danger')
 
     return redirect(url_for('admin_bp.admin_page'))

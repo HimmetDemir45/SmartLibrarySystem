@@ -20,9 +20,17 @@ class BaseRepository:
     def get_by_id(self, id):
         """ID'ye göre tek kayıt getirir"""
         try:
-            return self.model.query.get(id)
+            if id is None:
+                logger.warning(f"get_by_id çağrıldı ancak id None")
+                return None
+            result = self.model.query.get(id)
+            return result
         except SQLAlchemyError as e:
-            logger.error(f"Veritabanı hatası (get_by_id): {str(e)}")
+            logger.error(f"Veritabanı hatası (get_by_id, id={id}): {str(e)}")
+            db.session.rollback()
+            raise
+        except Exception as e:
+            logger.error(f"Beklenmeyen hata (get_by_id, id={id}): {str(e)}")
             db.session.rollback()
             raise
 
