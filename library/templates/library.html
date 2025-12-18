@@ -1,112 +1,115 @@
 {% extends 'base.html' %}
 {% block title %}
-    Kütüphane Kataloğu
+Kütüphane Kataloğu
 {% endblock %}
 
 {% block content %}
-    <div class="container-fluid" style="margin-top: 50px; padding: 0 30px;">
-        <div class="row">
+<div class="container-fluid" style="margin-top: 50px; padding: 0 30px;">
+    <div class="row">
 
-            <div class="col-lg-9"> <form method="GET" action="{{ url_for('book_bp.library_page') }}" class="mb-4 mt-3">
-                <div class="input-group input-group-lg"> <input type="text" name="q" id="search-input" class="form-control"
-                                                                placeholder="Kitap Vitrininde Ara: İsim, Yazar veya Barkod..."
-                                                                value="{{ request.args.get('q', '') }}"
-                                                                autocomplete="off"
-                                                                style="background-color: rgba(255,255,255,0.1); color: white; border-color: #555;">
+        <div class="col-lg-9">
+            <form method="GET" action="{{ url_for('book_bp.library_page') }}" class="mb-4 mt-3">
+                <div class="input-group input-group-lg"> <input type="text" name="q" id="search-input"
+                        class="form-control" placeholder="Kitap Vitrininde Ara: İsim, Yazar veya Barkod..."
+                        value="{{ request.args.get('q', '') }}" autocomplete="off"
+                        style="background-color: rgba(255,255,255,0.1); color: white; border-color: #555;">
 
                     <div class="input-group-append">
                         <button class="btn btn-info" type="submit">
                             <i class="fas fa-search"></i> Ara
                         </button>
                         {% if request.args.get('q') %}
-                            <a href="{{ url_for('book_bp.library_page') }}" class="btn btn-danger">
-                                <i class="fas fa-times"></i>
-                            </a>
+                        <a href="{{ url_for('book_bp.library_page') }}" class="btn btn-danger">
+                            <i class="fas fa-times"></i>
+                        </a>
                         {% endif %}
                     </div>
                 </div>
             </form>
 
-                <div id="results-area">
-                    {% include 'includes/book_list.html' %}
-                </div>
+            <div id="results-area">
+                {% include 'includes/book_list.html' %}
             </div>
+        </div>
 
-            <div class="col-lg-3">
-                <div class="glass-panel sticky-top sidebar-panel" style="top: 90px; z-index: 1;">
-                    <h4 class="text-center text-info mb-3">
-                        <i class="fas fa-user-circle mr-2"></i>Ödünç Aldıklarım
-                    </h4>
-                    <hr style="background-color: rgba(255,255,255,0.2);">
+        <div class="col-lg-3">
+            <div class="glass-panel sticky-top sidebar-panel" style="top: 90px;">
+                <h4 class="text-center text-info mb-3">
+                    <i class="fas fa-user-circle mr-2"></i>Ödünç Aldıklarım
+                </h4>
+                <hr style="background-color: rgba(255,255,255,0.2);">
 
-                    {% if owned_items %}
-                        <div class="alert alert-info text-center mb-3 owned-books-alert">
-                            <i class="fas fa-book-open mr-2"></i>
-                            <strong>{{ owned_items|length }}</strong> kitap ödünç aldınız
-                        </div>
-                        <div class="owned-books-list">
-                            {% for owned_item in owned_items %}
-                                <div class="owned-book-item">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1 text-white">{{ owned_item.name }}</h6>
-                                            <small class="text-muted">
-                                                <i class="fas fa-calendar-alt mr-1"></i>15 gün içinde iade edin
-                                            </small>
-                                        </div>
-                                        <button class="btn btn-sm btn-return-modern ml-2" 
-                                                data-toggle="modal" 
-                                                data-target="#Modal-Return-{{ owned_item.id }}"
-                                                title="İade Et">
-                                            <i class="fas fa-undo-alt"></i>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div class="modal fade" id="Modal-Return-{{ owned_item.id }}" tabindex="-1" role="dialog" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered">
-                                        <div class="modal-content return-modal-content">
-                                            <div class="modal-header return-modal-header">
-                                                <h5 class="modal-title">
-                                                    <i class="fas fa-undo-alt mr-2"></i>İade: {{ owned_item.name }}
-                                                </h5>
-                                                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                                                    <span aria-hidden="true">&times;</span>
-                                                </button>
-                                            </div>
-                                            <div class="modal-body text-center">
-                                                <i class="fas fa-book-reader fa-3x text-warning mb-3"></i>
-                                                <h5 class="mb-3">Bu kitabı iade etmek istediğinize emin misiniz?</h5>
-                                                <p class="text-muted mb-4">
-                                                    <i class="fas fa-info-circle"></i> İade işlemi yapıldığında ceza kontrolü otomatik yapılacaktır.
-                                                </p>
-                                                <form method="POST" action="{{ url_for('book_bp.library_page') }}" id="return-form-{{ owned_item.id }}">
-                                                    <input name="returned_book_id" type="hidden" value="{{ owned_item.id }}">
-                                                    <button class="btn btn-danger btn-lg btn-block return-btn" type="submit">
-                                                        <i class="fas fa-check-circle mr-2"></i>Onayla ve İade Et
-                                                    </button>
-                                                </form>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                                                    <i class="fas fa-times mr-2"></i>Vazgeç
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        <div class="text-center text-muted my-5 empty-state">
-                            <i class="fas fa-check-circle fa-3x mb-3 text-success"></i>
-                            <p class="mt-3">Üzerinizde hiç kitap yok.</p>
-                            <small class="text-muted">Kütüphaneden kitap ödünç alabilirsiniz.</small>
-                        </div>
-                    {% endif %}
+                {% if owned_items %}
+                <div class="alert alert-info text-center mb-3 owned-books-alert">
+                    <i class="fas fa-book-open mr-2"></i>
+                    <strong>{{ owned_items|length }}</strong> kitap ödünç aldınız
                 </div>
+                <div class="owned-books-list">
+                    {% for owned_item in owned_items %}
+                    <div class="owned-book-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1 text-white">{{ owned_item.name }}</h6>
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar-alt mr-1"></i>15 gün içinde iade edin
+                                </small>
+                            </div>
+                            <button class="btn btn-return-modern ml-2" data-toggle="modal"
+                                data-target="#Modal-Return-{{ owned_item.id }}" title="İade Et">
+                                <i class="fas fa-undo-alt mr-1"></i> İade Et
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center text-muted my-5 empty-state">
+                    <i class="fas fa-check-circle fa-3x mb-3 text-success"></i>
+                    <p class="mt-3">Üzerinizde hiç kitap yok.</p>
+                    <small class="text-muted">Kütüphaneden kitap ödünç alabilirsiniz.</small>
+                </div>
+                {% endif %}
             </div>
+        </div>
 
+    </div>
+</div>
+
+<!-- MODAL'LAR SIDEBAR DIŞINDA - Sayfa sonunda -->
+{% if owned_items %}
+{% for owned_item in owned_items %}
+<div class="modal fade" id="Modal-Return-{{ owned_item.id }}" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content return-modal-content">
+            <div class="modal-header return-modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-undo-alt mr-2"></i>İade: {{ owned_item.name }}
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <i class="fas fa-book-reader fa-3x text-warning mb-3"></i>
+                <h5 class="mb-3">Bu kitabı iade etmek istediğinize emin misiniz?</h5>
+                <p class="text-muted mb-4">
+                    <i class="fas fa-info-circle"></i> İade işlemi yapıldığında ceza kontrolü otomatik yapılacaktır.
+                </p>
+                <form method="POST" action="{{ url_for('book_bp.library_page') }}" id="return-form-{{ owned_item.id }}">
+                    <input name="returned_book_id" type="hidden" value="{{ owned_item.id }}">
+                    <button class="btn btn-danger btn-lg btn-block return-btn" type="submit">
+                        <i class="fas fa-check-circle mr-2"></i>Onayla ve İade Et
+                    </button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class="fas fa-times mr-2"></i>Vazgeç
+                </button>
+            </div>
         </div>
     </div>
+</div>
+{% endfor %}
+{% endif %}
 {% endblock %}

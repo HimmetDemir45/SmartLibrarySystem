@@ -1,0 +1,409 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Kütüphane Asistanı{% endblock %}
+
+{% block content %}
+<style>
+    .ai-chat-container {
+        max-width: 900px;
+        margin: 50px auto;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+
+    .chat-header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .chat-header h2 {
+        color: #00d2ff;
+        margin-bottom: 10px;
+    }
+
+    .chat-header .status-indicator {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 8px;
+    }
+
+    .status-online {
+        background-color: #28a745;
+        box-shadow: 0 0 10px #28a745;
+    }
+
+    .status-offline {
+        background-color: #dc3545;
+        box-shadow: 0 0 10px #dc3545;
+    }
+
+    .chat-messages {
+        height: 500px;
+        overflow-y: auto;
+        padding: 20px;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+
+    .message {
+        margin-bottom: 20px;
+        animation: fadeIn 0.3s;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message.user {
+        text-align: right;
+    }
+
+    .message.ai {
+        text-align: left;
+    }
+
+    .message-bubble {
+        display: inline-block;
+        max-width: 70%;
+        padding: 12px 18px;
+        border-radius: 18px;
+        word-wrap: break-word;
+    }
+
+    .message.user .message-bubble {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .message.ai .message-bubble {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .message-time {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.5);
+        margin-top: 5px;
+    }
+
+    .chat-input-area {
+        display: flex;
+        gap: 10px;
+    }
+
+    .chat-input {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 25px;
+        padding: 12px 20px;
+        color: white;
+    }
+
+    .chat-input:focus {
+        outline: none;
+        border-color: #00d2ff;
+        box-shadow: 0 0 10px rgba(0, 210, 255, 0.3);
+    }
+
+    .btn-send {
+        background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+        border: none;
+        border-radius: 25px;
+        padding: 12px 30px;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .btn-send:hover {
+        transform: scale(1.05);
+    }
+
+    .btn-send:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .quick-actions {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+    .quick-action-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        padding: 8px 16px;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 0.9rem;
+    }
+
+    .quick-action-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: #00d2ff;
+    }
+
+    .loading-indicator {
+        display: none;
+        text-align: center;
+        color: #00d2ff;
+        margin: 10px 0;
+    }
+
+    .loading-indicator.active {
+        display: block;
+    }
+
+    .typing-indicator {
+        display: inline-block;
+    }
+
+    .typing-dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #00d2ff;
+        margin: 0 2px;
+        animation: typing 1.4s infinite;
+    }
+
+    .typing-dot:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .typing-dot:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+
+    @keyframes typing {
+        0%, 60%, 100% { transform: translateY(0); }
+        30% { transform: translateY(-10px); }
+    }
+
+    .scrollbar-custom::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .scrollbar-custom::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+    }
+
+    .scrollbar-custom::-webkit-scrollbar-thumb {
+        background: #00d2ff;
+        border-radius: 10px;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="ai-chat-container">
+        <div class="chat-header">
+            <h2><i class="fas fa-robot"></i> AI Kütüphane Asistanı</h2>
+            <p class="text-muted">
+                <span id="status-indicator" class="status-indicator status-offline"></span>
+                <span id="status-text">Bağlantı kontrol ediliyor...</span>
+            </p>
+        </div>
+
+        <div class="quick-actions">
+            <button class="quick-action-btn" onclick="sendQuickMessage('Kitap önerileri alabilir miyim?')">
+                <i class="fas fa-book"></i> Kitap Önerileri
+            </button>
+            <button class="quick-action-btn" onclick="sendQuickMessage('Popüler kitaplar hangileri?')">
+                <i class="fas fa-star"></i> Popüler Kitaplar
+            </button>
+            <button class="quick-action-btn" onclick="sendQuickMessage('Yazarlar hakkında bilgi verir misin?')">
+                <i class="fas fa-pen-nib"></i> Yazarlar
+            </button>
+            <button class="quick-action-btn" onclick="clearChat()">
+                <i class="fas fa-trash"></i> Sohbeti Temizle
+            </button>
+        </div>
+
+        <div class="chat-messages scrollbar-custom" id="chat-messages">
+            <div class="message ai">
+                <div class="message-bubble">
+                    Merhaba! Ben AI kütüphane asistanınız. Size kitaplar, yazarlar ve okuma önerileri hakkında yardımcı olabilirim. 
+                    Nasıl yardımcı olabilirim?
+                </div>
+                <div class="message-time">Şimdi</div>
+            </div>
+        </div>
+
+        <div class="loading-indicator" id="loading-indicator">
+            <div class="typing-indicator">
+                <span class="typing-dot"></span>
+                <span class="typing-dot"></span>
+                <span class="typing-dot"></span>
+            </div>
+        </div>
+
+        <div class="chat-input-area">
+            <input type="text" 
+                   class="chat-input" 
+                   id="chat-input" 
+                   placeholder="Mesajınızı yazın..."
+                   onkeypress="handleKeyPress(event)">
+            <button class="btn-send" id="send-btn" onclick="sendMessage()">
+                <i class="fas fa-paper-plane"></i> Gönder
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let isProcessing = false;
+
+    // Sayfa yüklendiğinde bağlantı kontrolü
+    window.addEventListener('DOMContentLoaded', function() {
+        checkConnection();
+        
+        // URL'den soru parametresi varsa otomatik gönder
+        const urlParams = new URLSearchParams(window.location.search);
+        const question = urlParams.get('q');
+        if (question) {
+            document.getElementById('chat-input').value = question;
+            setTimeout(() => sendMessage(), 500);
+        }
+    });
+
+    function checkConnection() {
+        fetch('/ai/check')
+            .then(response => response.json())
+            .then(data => {
+                const indicator = document.getElementById('status-indicator');
+                const statusText = document.getElementById('status-text');
+                
+                if (data.success) {
+                    indicator.className = 'status-indicator status-online';
+                    statusText.textContent = 'AI Asistan Hazır';
+                } else {
+                    indicator.className = 'status-indicator status-offline';
+                    statusText.textContent = 'AI Servisi Kullanılamıyor';
+                }
+            })
+            .catch(error => {
+                const indicator = document.getElementById('status-indicator');
+                const statusText = document.getElementById('status-text');
+                indicator.className = 'status-indicator status-offline';
+                statusText.textContent = 'Bağlantı Hatası';
+            });
+    }
+
+    function handleKeyPress(event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            sendMessage();
+        }
+    }
+
+    function sendQuickMessage(message) {
+        document.getElementById('chat-input').value = message;
+        sendMessage();
+    }
+
+    function sendMessage() {
+        const input = document.getElementById('chat-input');
+        const message = input.value.trim();
+        
+        if (!message || isProcessing) return;
+
+        // Kullanıcı mesajını göster
+        addMessage(message, 'user');
+        input.value = '';
+        
+        // Loading göster
+        showLoading();
+        isProcessing = true;
+        document.getElementById('send-btn').disabled = true;
+
+        // AI'ye gönder
+        fetch('/ai/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message: message })
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideLoading();
+            isProcessing = false;
+            document.getElementById('send-btn').disabled = false;
+
+            if (data.success) {
+                addMessage(data.response, 'ai');
+            } else {
+                addMessage('Üzgünüm, bir hata oluştu: ' + (data.message || 'Bilinmeyen hata'), 'ai');
+            }
+        })
+        .catch(error => {
+            hideLoading();
+            isProcessing = false;
+            document.getElementById('send-btn').disabled = false;
+            addMessage('Bağlantı hatası oluştu. Lütfen tekrar deneyin.', 'ai');
+            console.error('Error:', error);
+        });
+    }
+
+    function addMessage(text, type) {
+        const messagesContainer = document.getElementById('chat-messages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${type}`;
+        
+        const bubble = document.createElement('div');
+        bubble.className = 'message-bubble';
+        bubble.textContent = text;
+        
+        const time = document.createElement('div');
+        time.className = 'message-time';
+        time.textContent = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+        
+        messageDiv.appendChild(bubble);
+        messageDiv.appendChild(time);
+        messagesContainer.appendChild(messageDiv);
+        
+        // Scroll to bottom
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function showLoading() {
+        document.getElementById('loading-indicator').classList.add('active');
+    }
+
+    function hideLoading() {
+        document.getElementById('loading-indicator').classList.remove('active');
+    }
+
+    function clearChat() {
+        const messagesContainer = document.getElementById('chat-messages');
+        messagesContainer.innerHTML = `
+            <div class="message ai">
+                <div class="message-bubble">
+                    Merhaba! Ben AI kütüphane asistanınız. Size kitaplar, yazarlar ve okuma önerileri hakkında yardımcı olabilirim. 
+                    Nasıl yardımcı olabilirim?
+                </div>
+                <div class="message-time">Şimdi</div>
+            </div>
+        `;
+    }
+</script>
+{% endblock %}
+

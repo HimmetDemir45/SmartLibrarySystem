@@ -98,12 +98,12 @@ def admin_page():
         .group_by(Category.id).all()
 
     # Chart.js'in anlayacağı liste formatına çeviriyoruz
-    cat_labels = [stat[0] for stat in cat_stats] # Örn: ['Roman', 'Bilim Kurgu']
-    cat_values = [stat[1] for stat in cat_stats] # Örn: [15, 8]
+    cat_labels = [stat[0] for stat in cat_stats]  # Örn: ['Roman', 'Bilim Kurgu']
+    cat_values = [stat[1] for stat in cat_stats]  # Örn: [15, 8]
 
     # İstatistikleri çek
     library_stats = StatsService.get_library_stats()
-    
+
     # Aylık raporu çek
     monthly_report = ReportService.generate_monthly_report()
 
@@ -119,6 +119,7 @@ def admin_page():
                            cat_values=cat_values,
                            library_stats=library_stats,
                            monthly_report=monthly_report)
+
 
 # --- DÜZENLEME ROTASI (Popup Modal ile yapılacak varsayılır) ---
 @admin_bp.route('/admin/update_author/<int:author_id>', methods=['POST'])
@@ -212,7 +213,7 @@ def update_book(book_id):
 
         # Kitabı güncelle
         updated_book = BookService.update_book(book_id, update_data)
-        
+
         if updated_book:
             flash(f"'{updated_book.name}' başarıyla güncellendi.", 'success')
         else:
@@ -237,14 +238,14 @@ def delete_book(book_id):
         # Aktif ödünç kontrolü
         active_borrows = LoanService.borrow_repo.get_all_active()
         book_has_active_borrows = any(b.book_id == book_id for b in active_borrows)
-        
+
         if book_has_active_borrows:
             flash(f"'{book.name}' kitabı şu anda ödünç alınmış durumda. Önce iade edilmesi gerekir.", 'danger')
             return redirect(url_for('admin_bp.admin_page'))
 
         # Kitabı sil
         success = BookService.delete_book(book_id)
-        
+
         if success:
             flash(f"'{book.name}' başarıyla silindi.", 'success')
         else:
@@ -254,3 +255,76 @@ def delete_book(book_id):
         flash(f"Kitap silinirken hata oluştu: {str(e)}", 'danger')
 
     return redirect(url_for('admin_bp.admin_page'))
+
+
+@admin_bp.route('/admin/approve_user/<int:user_id>', methods=['POST'])
+@admin_required
+def approve_user(user_id):
+    """
+    Onay bekleyen kullanıcıyı aktif hale getirir.
+    """
+    user_repo = UserRepository()
+    user = user_repo.get_by_id(user_id)
+
+    if user:
+        if user.is_approved:
+            flash(f"'{user.username}' zaten onaylı bir kullanıcı.", "info")
+        else:
+            user.is_approved = True
+            db.session.commit()
+            flash(f"'{user.username}' hesabı başarıyla onaylandı. Artık giriş yapabilir.", "success")
+    else:
+        flash("Kullanıcı bulunamadı.", "danger")
+
+    return redirect(url_for('admin_bp.admin_page'))
+
+
+@admin_bp.route('/admin/update_budget/<int:user_id>', methods=['POST'])
+@admin_required
+def update_budget(user_id):
+    """
+    Kullanıcı bakiyesini günceller (ekle/çıkar/belirle).
+    """
+    try:
+        user_repo = UserRepository()
+        user = user_repo.get_by_id(user_id)
+
+        if not user:
+            flash("Kullanıcı bulunamadı.", "danger")
+            return redirect(url_for('admin_bp.admin_page'))
+
+        operation = request.form.get('operation')
+        amount = float(request.form.get('amount', 0))
+
+        if amount < 0:
+            flash("Miktar negatif olamaz.", "danger")
+            return redirect(url_for('admin_bp.admin_page'))
+
+        old_budget = user.budget
+
+        if operation == 'add':
+            user.budget += amount
+            flash(f"'{user.username}' bakiyesine {amount} TL eklendi. Yeni bakiye: {user.budget} TL", "success")
+        elif operation == 'subtract':
+            if user.budget < amount:
+                flash(f"Yetersiz bakiye! Mevcut: {user.budget} TL, Çıkarılacak: {amount} TL", "danger")
+                return redirect(url_for('admin_bp.admin_page'))
+            user.budget -= amount
+            flash(f"'{user.username}' bakiyesinden {amount} TL çıkarıldı. Yeni bakiye: {user.budget} TL", "success")
+        elif operation == 'set':
+            user.budget = amount
+            flash(f"'{user.username}' bakiyesi {amount} TL olarak ayarlandı.", "success")
+        else:
+            flash("Geçersiz işlem türü.", "danger")
+            return redirect(url_for('admin_bp.admin_page'))
+
+        db.session.commit()
+        return redirect(url_for('admin_bp.admin_page'))
+
+    except ValueError:
+        flash("Geçersiz miktar değeri.", "danger")
+        return redirect(url_for('admin_bp.admin_page'))
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Bakiye güncelleme hatası: {str(e)}", "danger")
+        return redirect(url_for('admin_bp.admin_page'))

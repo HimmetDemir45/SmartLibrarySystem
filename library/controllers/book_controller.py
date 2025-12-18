@@ -88,6 +88,14 @@ def edit_book_web(id):
             'description': form.description.data
         }
 
+        # Resim güncelleme kontrolü
+        if 'image' in request.files:
+            image_file = request.files['image']
+            if image_file and image_file.filename:
+                from library.services.file_service import FileService
+                image_file_name = FileService.save_picture(image_file)
+                data['image_file'] = image_file_name
+
         updated_book = BookService.update_book(id, data)
 
         if updated_book:
@@ -101,3 +109,17 @@ def edit_book_web(id):
                 flash(f"Hata ({field}): {error}", category='danger')
 
     return redirect(url_for('book_bp.library_page'))
+
+@book_bp.route('/pay_fines', methods=['POST'])
+@login_required
+def pay_fines():
+    # Tüm işlemi servise devrettik
+    result = LoanService.pay_fines_via_budget(current_user.id)
+
+    if result['success']:
+        flash(result['message'], "success")
+    else:
+        # Hata mesajı servisten ne gelirse onu gösteriyoruz (Yetersiz bakiye vb.)
+        flash(result['message'], "danger")
+
+    return redirect(url_for('main_bp.profile_page'))

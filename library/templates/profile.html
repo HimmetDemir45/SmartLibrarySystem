@@ -12,19 +12,38 @@
                     </div>
                     <div class="card-body text-center">
                         <div class="mb-3">
-                            <i class="fas fa-user-circle fa-5x text-info"></i>
+                            {% if current_user.is_admin %}
+                                <i class="fas fa-user-shield fa-5x text-warning"></i>
+                            {% else %}
+                                <i class="fas fa-user-circle fa-5x text-info"></i>
+                            {% endif %}
                         </div>
                         <h4>{{ current_user.username }}</h4>
                         <p class="text-muted small">{{ current_user.email_address }}</p>
+                        {% if current_user.is_admin %}
+                            <span class="badge badge-warning mb-2"><i class="fas fa-shield-alt"></i> Admin</span>
+                        {% endif %}
+                        <hr class="bg-secondary">
+
+                        <h6 class="text-uppercase small">Bakiye</h6>
+                        <h2 class="display-6 text-info">
+                            {{ current_user.budget }} TL
+                        </h2>
+                        <p class="text-muted small"><i class="fas fa-wallet"></i> Mevcut bakiyeniz</p>
                         <hr class="bg-secondary">
 
                         <h6 class="text-uppercase small">Toplam Ceza Borcu</h6>
                         <h2 class="display-6 {% if total_fine > 0 %}text-danger{% else %}text-success{% endif %}">
                             {{ "%.2f"|format(total_fine) }} TL
                         </h2>
-
                         {% if total_fine > 0 %}
                             <p class="text-warning small"><i class="fas fa-exclamation-triangle"></i> Lütfen gecikmiş kitaplarınızı iade edin.</p>
+
+                            <form action="{{ url_for('book_bp.pay_fines') }}" method="POST">
+                                <button type="submit" class="btn btn-outline-danger btn-sm mt-2" onclick="return confirm('Borcunuzu bakiyenizden ödemek istiyor musunuz?')">
+                                    <i class="fas fa-credit-card"></i> Borcu Öde
+                                </button>
+                            </form>
                         {% else %}
                             <p class="text-success small"><i class="fas fa-check-circle"></i> Borcunuz bulunmamaktadır.</p>
                         {% endif %}
@@ -88,6 +107,19 @@
                                 <p class="text-muted mb-0">Toplam Ceza</p>
                             </div>
                         </div>
+                        {% if current_user.is_admin %}
+                        <hr class="bg-secondary">
+                        <div class="row text-center">
+                            <div class="col-md-6 mb-3">
+                                <h3 class="text-success">{{ library_stats.total_books if library_stats else 0 }}</h3>
+                                <p class="text-muted mb-0">Toplam Kitap</p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <h3 class="text-primary">{{ library_stats.total_users if library_stats else 0 }}</h3>
+                                <p class="text-muted mb-0">Toplam Üye</p>
+                            </div>
+                        </div>
+                        {% endif %}
                         {% if user_stats.favorite_categories %}
                         <hr class="bg-secondary">
                         <h6 class="text-info">En Çok Okuduğunuz Kategoriler:</h6>

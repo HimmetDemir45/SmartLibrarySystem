@@ -58,6 +58,11 @@
                         <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#Modal-MoreInfo-{{ item.id }}">
                             <i class="fas fa-info"></i>
                         </button>
+                        {% if current_user.is_authenticated %}
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="askAboutBook('{{ item.name }}')" title="AI'ya Sor">
+                            <i class="fas fa-robot"></i>
+                        </button>
+                        {% endif %}
 
                         {% if current_user.is_admin %}
                             <button type="button" class="btn btn-sm btn-outline-warning" data-toggle="modal" data-target="#Modal-EditBook-{{ item.id }}">
@@ -133,12 +138,22 @@
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                         </div>
                         <div class="modal-body">
-                            <form action="{{ url_for('book_bp.edit_book_web', id=item.id) }}" method="POST">
+                            <form action="{{ url_for('book_bp.edit_book_web', id=item.id) }}" method="POST" enctype="multipart/form-data">
                                 <div class="form-group"><label>Kitap Adı</label><input type="text" name="name" class="form-control" value="{{ item.name }}"></div>
                                 <div class="form-group"><label>Yazar</label><input type="text" name="author" class="form-control" value="{{ item.author.name }}"></div>
                                 <div class="form-group"><label>Kategori</label><input type="text" name="category" class="form-control" value="{{ item.category.name }}"></div>
                                 <div class="form-group"><label>Barkod</label><input type="text" name="barcode" class="form-control" value="{{ item.barcode }}"></div>
                                 <div class="form-group"><label>Açıklama</label><textarea name="description" class="form-control" rows="3">{{ item.description }}</textarea></div>
+                                <div class="form-group">
+                                    <label>Kitap Kapağı</label>
+                                    <div class="mb-2">
+                                        <img src="{{ url_for('static', filename='book_pics/' + item.image_file) }}" 
+                                             style="max-height: 100px; border-radius: 5px;" 
+                                             alt="Mevcut resim">
+                                    </div>
+                                    <input type="file" name="image" class="form-control-file" accept="image/jpeg,image/png,image/jpg">
+                                    <small class="form-text text-muted">Yeni resim yüklemezseniz mevcut resim korunur.</small>
+                                </div>
                                 <button type="submit" class="btn btn-warning btn-block">Değişiklikleri Kaydet</button>
                             </form>
                         </div>

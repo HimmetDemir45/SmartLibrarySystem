@@ -21,4 +21,12 @@ class Config:
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     WTF_CSRF_ENABLED = True
-    DAILY_FINE = float(os.getenv('DAILY_FINE', 50)) # Bulamazsa varsayılan 50 TL
+    
+    # Kütüphane Kuralları
+    DAILY_FINE = float(os.getenv('DAILY_FINE', 50))  # Bulamazsa varsayılan 50 TL
+    MAX_BOOKS_PER_USER = int(os.getenv('MAX_BOOKS_PER_USER', 5))  # Kullanıcı başına max kitap
+    LOAN_PERIOD_DAYS = int(os.getenv('LOAN_PERIOD_DAYS', 15))  # Ödünç süresi (gün)
+    
+    # Ollama AI Ayarları
+    OLLAMA_BASE_URL = os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')
+    OLLAMA_MODEL = os.getenv('OLLAMA_MODEL', 'deepseek-r1:8b')

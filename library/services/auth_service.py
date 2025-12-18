@@ -11,8 +11,8 @@ class AuthService:
     @staticmethod
     def register_user(username, email, password):
         try:
-            # Yeni kullanıcı nesnesi oluştur
-            user = User(username=username, email_address=email, password=password)
+            # Yeni kullanıcı nesnesi oluştur - varsayılan bakiye 100 TL
+            user = User(username=username, email_address=email, password=password, budget=100)
             # Repository aracılığıyla kaydet
             return AuthService.user_repo.add(user)
         except IntegrityError as e:

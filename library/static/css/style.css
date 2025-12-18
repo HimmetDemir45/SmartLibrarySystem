@@ -8,7 +8,8 @@ body {
 
 /* Navbar Tasarımı */
 .navbar-custom {
-    background-color: rgba(0, 0, 0, 0.8); /* Biraz daha koyu ve belirgin */
+    background-color: rgba(0, 0, 0, 0.8);
+    /* Biraz daha koyu ve belirgin */
     backdrop-filter: blur(15px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     padding: 15px 20px;
@@ -102,9 +103,12 @@ body {
 }
 
 @keyframes float {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: translateY(0);
     }
+
     50% {
         transform: translateY(-5px);
     }
@@ -124,9 +128,12 @@ body {
 }
 
 @keyframes pulse-glow {
-    0%, 100% {
+
+    0%,
+    100% {
         box-shadow: 0 0 5px rgba(255, 193, 7, 0.5);
     }
+
     50% {
         box-shadow: 0 0 20px rgba(255, 193, 7, 0.8);
     }
@@ -185,6 +192,7 @@ body {
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
     margin-bottom: 20px;
 }
+
 /* --- GİRİŞ VE KAYIT SAYFALARI İÇİN ÖZEL STİLLER --- */
 
 /* Giriş Kutusu (Input) Tasarımı */
@@ -193,7 +201,8 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.1);
     color: white !important;
     height: 50px;
-    border-radius: 0 30px 30px 0; /* Sol taraf düz, sağ taraf yuvarlak */
+    border-radius: 0 30px 30px 0;
+    /* Sol taraf düz, sağ taraf yuvarlak */
     padding-left: 15px;
     transition: all 0.3s;
 }
@@ -214,7 +223,8 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-right: none;
     color: #00d2ff;
-    border-radius: 30px 0 0 30px; /* Sol taraf yuvarlak, sağ taraf düz */
+    border-radius: 30px 0 0 30px;
+    /* Sol taraf yuvarlak, sağ taraf düz */
     width: 50px;
     justify-content: center;
 }
@@ -262,6 +272,7 @@ body {
         opacity: 0;
         transform: translateX(20px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -305,8 +316,8 @@ body {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 10px;
-    padding: 12px;
-    margin-bottom: 10px;
+    padding: 15px;
+    margin-bottom: 12px;
     transition: all 0.3s ease;
 }
 
@@ -317,33 +328,70 @@ body {
     box-shadow: 0 4px 12px rgba(0, 210, 255, 0.2);
 }
 
+.owned-book-item .d-flex {
+    gap: 10px;
+    align-items: center;
+}
+
 .btn-return-modern {
     background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
     border: none;
     color: white;
     border-radius: 8px;
-    padding: 8px 12px;
+    padding: 10px 16px;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.4);
+    font-weight: 600;
+    font-size: 0.9rem;
+    min-width: 100px;
+    cursor: pointer;
 }
 
 .btn-return-modern:hover {
-    transform: scale(1.1);
-    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.5);
+    transform: scale(1.08);
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.6);
     color: white;
+    background: linear-gradient(135deg, #ff5252, #e04a5f);
 }
 
 .btn-return-modern:active {
-    transform: scale(0.95);
+    transform: scale(0.98);
 }
 
+.btn-return-modern:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.3);
+}
+
+
 /* İade Modal */
+.modal {
+    z-index: 1060 !important;
+}
+
+.modal-backdrop {
+    z-index: 1055 !important;
+}
+
+.modal-dialog {
+    max-width: 500px;
+    margin: 1.75rem auto;
+}
+
+.modal-dialog-centered {
+    display: flex;
+    align-items: center;
+    min-height: calc(100% - 3.5rem);
+}
+
 .return-modal-content {
     background: linear-gradient(135deg, #1e1e1e, #2d2d2d);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 15px;
     color: white;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    position: relative;
+    width: 100%;
 }
 
 .return-modal-header {
@@ -382,10 +430,13 @@ body {
 }
 
 @keyframes pulse {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: scale(1);
         opacity: 1;
     }
+
     50% {
         transform: scale(1.1);
         opacity: 0.8;
@@ -430,7 +481,17 @@ body {
     padding: 6px 12px;
     border-radius: 20px;
     font-weight: 500;
+    font-size: 0.75rem;
+    letter-spacing: 0.3px;
     transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    vertical-align: middle;
+}
+
+.badge i {
+    font-size: 0.7rem;
 }
 
 .badge-success {
@@ -438,9 +499,30 @@ body {
     box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
 }
 
+.badge-success:hover {
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.5);
+    transform: scale(1.05);
+}
+
 .badge-danger {
     background: linear-gradient(135deg, #dc3545, #c82333);
     box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+.badge-danger:hover {
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.5);
+    transform: scale(1.05);
+}
+
+.badge-warning {
+    background: linear-gradient(135deg, #ffc107, #ff9800);
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+    color: #212121 !important;
+}
+
+.badge-warning:hover {
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.5);
+    transform: scale(1.05);
 }
 
 .badge-secondary {
@@ -513,6 +595,7 @@ body {
     from {
         transform: rotate(0deg);
     }
+
     to {
         transform: rotate(360deg);
     }
@@ -524,15 +607,15 @@ body {
         margin-top: 20px;
         position: relative !important;
     }
-    
+
     .owned-books-list {
         max-height: 300px;
     }
-    
+
     .navbar-brand {
         font-size: 1.1rem;
     }
-    
+
     .return-modal-content {
         margin: 10px;
     }

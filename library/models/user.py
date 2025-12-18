@@ -14,6 +14,7 @@ class User(db.Model, UserMixin):
     password_hash = db.Column(db.String(length=60), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
     budget = db.Column(db.Integer(), nullable=False, default=0)
+    is_approved = db.Column(db.Boolean, default=False)
     # İlişkiler (backref Borrow modelinde tanımlı)
     # borrows relationship'i Borrow modelindeki backref ile oluşturuluyor
 
@@ -31,3 +32,4 @@ class User(db.Model, UserMixin):
 
     def __repr__(self):
         return f'<User {self.username}>'
+

@@ -105,6 +105,11 @@ class BookService:
         try:
             book = BookService.book_repo.get_by_id(book_id)
             if book:
+                # Eski resmi sil (default.jpg hariç)
+                if book.image_file and book.image_file != 'default.jpg':
+                    from library.services.file_service import FileService
+                    FileService.delete_picture(book.image_file)
+                
                 BookService.book_repo.delete(book)
                 return True
             return False
@@ -122,6 +127,8 @@ class BookService:
             if not book:
                 return None
 
+            old_image_file = book.image_file  # Eski resmi sakla
+
             # Temel Bilgiler
             if 'name' in data and data['name']: 
                 book.name = data['name']
@@ -132,6 +139,10 @@ class BookService:
             
             # Resim güncelleme
             if 'image_file' in data and data['image_file']:
+                # Yeni resim varsa eski resmi sil (default.jpg hariç)
+                if old_image_file and old_image_file != 'default.jpg' and old_image_file != data['image_file']:
+                    from library.services.file_service import FileService
+                    FileService.delete_picture(old_image_file)
                 book.image_file = data['image_file']
 
             # İlişkisel Veriler (Yazar/Kategori) - Helper metodları kullan

@@ -31,8 +31,14 @@ def profile_page():
     # Bildirimleri getir
     notifications = NotificationService.get_user_notifications(current_user.id)
 
+    # Admin için kütüphane istatistiklerini getir
+    library_stats = None
+    if current_user.is_admin:
+        library_stats = StatsService.get_library_stats()
+
     return render_template('profile.html',
                            active_books=active_books,
                            total_fine=total_fine,
                            user_stats=user_stats,
-                           notifications=notifications)
+                           notifications=notifications,
+                           library_stats=library_stats)

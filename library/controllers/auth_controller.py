@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from library.forms import RegisterForm, LoginForm
+from library.models import User
 from library.services.auth_service import AuthService
 from flask_login import login_user, logout_user
 
@@ -9,11 +10,22 @@ auth_bp = Blueprint('auth_bp', __name__)
 def login_page():
     form = LoginForm()
     if form.validate_on_submit():
-        user = AuthService.check_user_login(form.username.data, form.password.data)
-        if user:
-            login_user(user)
-            flash(f'Giriş başarılı: {user.username}', category='success')
-            return redirect(url_for('book_bp.library_page')) # Blueprint adına dikkat
+        # AuthService kullanarak login kontrolü yap
+        attempted_user = AuthService.check_user_login(
+            username=form.username.data,
+            password=form.password.data
+        )
+
+        if attempted_user:
+            # Admin değilse ve onayı yoksa giriş yapmasına izin verme
+            if not attempted_user.is_admin and not attempted_user.is_approved:
+                flash('⚠️ Hesabınız henüz onaylanmamış. Lütfen yönetici onayı bekleyin.', category='warning')
+                return render_template('login.html', form=form)
+            
+            login_user(attempted_user)
+            flash(f'Başarıyla giriş yaptınız: {attempted_user.username}', category='success')
+            next_page = request.args.get('next')
+            return redirect(next_page) if next_page else redirect(url_for('book_bp.library_page'))
         else:
             flash('Kullanıcı adı veya şifre hatalı!', category='danger')
 

@@ -55,27 +55,46 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // --- 3. İADE BUTONU İYİLEŞTİRMELERİ ---
-    // İade butonuna tıklandığında loading göster ama form submit'ine izin ver
-    $(document).on('click', '.return-btn', function(e) {
-        const btn = $(this);
-        const form = btn.closest('form');
-        
-        // Form geçerliyse loading göster
-        if (form.length && form[0].checkValidity()) {
-            btn.prop('disabled', true);
-            const originalHtml = btn.html();
-            btn.html('<i class="fas fa-spinner fa-spin mr-2"></i>İade ediliyor...');
-            
-            // Form submit edilecek, sayfa yenilenecek
-            // Eğer submit başarısız olursa butonu tekrar aktif et
-            setTimeout(function() {
-                if (btn.prop('disabled')) {
-                    btn.prop('disabled', false);
-                    btn.html(originalHtml);
-                }
-            }, 5000); // 5 saniye sonra timeout
+// --- 3. İADE VE FORM BUTONLARI ---
+    // HATA ÇÖZÜMÜ: 'click' yerine 'submit' olayını dinliyoruz.
+    $(document).on('submit', 'form', function() {
+        const btn = $(this).find('button[type="submit"]');
+
+        // Eğer form zaten gönderiliyorsa tekrar basılmasını engelle
+        if (btn.prop('disabled')) {
+            return false;
         }
+
+        // Form geçerliyse işlemi başlat
+        if (this.checkValidity()) {
+            // 1. Butonun genişliğini sabitle (Titremeyi önler)
+            const width = btn.outerWidth();
+            btn.css('width', width + 'px');
+
+            // 2. Butonun orijinal metnini sakla
+            const originalText = btn.html();
+
+            // 3. ÇOK ÖNEMLİ: Butonu hemen disable yapma, submit işleminin başlaması için
+            // 50ms gecikme ver. Yoksa tarayıcı formu göndermez!
+            setTimeout(function() {
+                btn.prop('disabled', true);
+                btn.html('<i class="fas fa-spinner fa-spin"></i>');
+            }, 50);
+
+            // 4. Emniyet Sübapı: Eğer sunucu 8 saniye cevap vermezse butonu tekrar aç
+            setTimeout(function() {
+                btn.prop('disabled', false);
+                btn.html(originalText);
+            }, 8000);
+        }
+    });
+
+    // Modal kapandığında bazen ekran gri kalıyor (backdrop), bunu temizleyelim:
+    $('.modal').on('hidden.bs.modal', function () {
+        $('body').removeClass('modal-open');
+        $('.modal-backdrop').remove();
+        // Modal içindeki formları sıfırla
+        $(this).find('form').trigger('reset');
     });
     
     // Form submit edildiğinde modal'ı kapat
@@ -161,3 +180,10 @@ document.addEventListener("DOMContentLoaded", function() {
         document.body.style.opacity = '1';
     }, 100);
 });
+
+// --- AI ASİSTAN FONKSİYONLARI ---
+function askAboutBook(bookName) {
+    // AI asistan sayfasına yönlendir ve kitap hakkında soru sor
+    const question = `${bookName} hakkında bilgi verir misin?`;
+    window.location.href = `/ai/assistant?q=${encodeURIComponent(question)}`;
+}

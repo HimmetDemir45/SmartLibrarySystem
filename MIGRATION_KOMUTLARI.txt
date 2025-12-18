@@ -48,7 +48,7 @@ Eğer "flask db" komutu çalışmıyorsa:
 
 2. Tekrar deneyin:
    flask db upgrade
-
+flask db migrate -m "User tablosuna onay alani eklendi"
 
 SQLITE KULLANICILARI İÇİN NOT
 ---------------------------------------------------
