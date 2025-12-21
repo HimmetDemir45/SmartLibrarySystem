@@ -11,7 +11,7 @@ Kütüphane Kataloğu
             <form method="GET" action="{{ url_for('book_bp.library_page') }}" class="mb-4 mt-3">
                 <div class="input-group input-group-lg"> <input type="text" name="q" id="search-input"
                         class="form-control" placeholder="Kitap Vitrininde Ara: İsim, Yazar veya Barkod..."
-                        value="{{ request.args.get('q', '') }}" autocomplete="off"
+                        value="{{ request.args.get('q', '')|e }}" autocomplete="off"
                         style="background-color: rgba(255,255,255,0.1); color: white; border-color: #555;">
 
                     <div class="input-group-append">

@@ -174,11 +174,8 @@ class LoanService:
             logger.info(f"Aktif ödünç sorgusu: {active_borrow}")
 
             if not active_borrow:
-                # Detaylıca hangi kayıtlar var göster
-                from library.models.borrow import Borrow
-                open_borrows = Borrow.query.filter_by(book_id=book_id, user_id=user_id, return_date=None).all()
-                logger.error(
-                    f"İade işlemi için aktif borç bulunamadı. DB'de return_date=None ile görünen kayıtlar: {open_borrows}")
+                # IDOR koruması: Kullanıcı başkasının kitabını iade edemez
+                logger.warning(f"IDOR koruması: user_id={user_id} başkasının kitabını iade etmeye çalıştı (book_id={book_id})")
                 return {"success": False, "message": "Bu kitap zaten sizde görünmüyor."}
 
             now = datetime.now(timezone.utc)

@@ -9,6 +9,7 @@ class BookRepository(BaseRepository):
     def search(self, query, page=1, per_page=12):
         # Arama işlemi - yazar ve kategori adına göre de arama yapılabilir
         # Eager loading ile author ve category ilişkilerini yüklüyoruz
+        # SQL Injection koruması: ORM kullanılıyor, parametreler otomatik escape ediliyor
         from library.models.author import Author
         from library.models.category import Category
         
@@ -17,6 +18,12 @@ class BookRepository(BaseRepository):
             joinedload(Book.category)
         )
         if query:
+            # SQL Injection koruması: ORM ile ilike kullanılıyor, otomatik escape ediliyor
+            # XSS koruması: Query parametresi template'de render edilmeden önce escape edilmeli
+            # Query uzunluğu kontrolü (DoS koruması)
+            if len(query) > 200:
+                query = query[:200]  # Maksimum 200 karakter
+            
             # Yazar ve kategoriye göre arama için outer join kullanıyoruz
             books = books.outerjoin(Author).outerjoin(Category).filter(
                 (Book.name.ilike(f'%{query}%')) |

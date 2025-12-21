@@ -48,7 +48,7 @@ with app.app_context():
         db.session.execute(text(trigger_sql))
         print("✓ Trigger oluşturuldu")
     except Exception as e:
-        print(f"⚠ Trigger oluşturulamadı (SQLite kullanılıyor olabilir): {e}")
+        print(f"⚠ Trigger oluşturulamadı: {e}")
 
     # --- STORED PROCEDURE OLUŞTURMA (MySQL için) ---
     try:
@@ -62,7 +62,7 @@ with app.app_context():
         db.session.execute(text(procedure_sql))
         print("✓ Procedure oluşturuldu")
     except Exception as e:
-        print(f"⚠ Procedure oluşturulamadı (SQLite kullanılıyor olabilir): {e}")
+        print(f"⚠ Procedure oluşturulamadı: {e}")
 
     # 4. Güvenlik kilidini kapat
     try:
