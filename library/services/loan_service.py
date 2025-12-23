@@ -4,7 +4,6 @@ from library.repositories.book_repository import BookRepository
 from library.models.borrow import Borrow
 from datetime import datetime, timedelta, timezone
 from library import db
-from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from flask import current_app
 import logging
@@ -55,8 +54,8 @@ class LoanService:
             borrow_date = datetime.now(timezone.utc)
             # Ödünç süresini config'den al
             loan_period = current_app.config.get('LOAN_PERIOD_DAYS', 15)
-            due_date = borrow_date + timedelta(days=loan_period)
-            
+            due_date = borrow_date + timedelta(days=loan_period)  # <--
+
             new_borrow = Borrow(
                 user_id=user_id,
                 book_id=book_id,
@@ -64,18 +63,18 @@ class LoanService:
                 due_date=due_date,
                 fine_amount=0.0
             )
-            
+
             # 4. Kitabı "Müsait Değil" yap
             book.is_available = False
-            
+
             # 5. Değişiklikleri kaydet
             db.session.add(new_borrow)
             db.session.commit()
-            
+
             logger.info(f"Kitap ödünç verildi | user_id={user_id}, book_id={book_id}, due_date={due_date}")
-            
+
             return {
-                "success": True, 
+                "success": True,
                 "message": f"{book.name} başarıyla ödünç alındı. İade tarihi: {due_date.strftime('%d.%m.%Y')}"
             }
 
@@ -122,7 +121,6 @@ class LoanService:
                 borrow.fine_amount = 0
 
             # Geçmişteki ödenmemiş cezaları da sıfırlayabilirsiniz (Opsiyonel)
-            # ...
 
             db.session.commit()  # Tek seferde kaydet
             return {"success": True, "message": "Ödeme başarıyla alındı ve borçlarınız silindi."}
@@ -136,7 +134,7 @@ class LoanService:
             logger.error(f"Beklenmeyen ödeme hatası: {str(e)}")
             return {"success": False, "message": "İşlem sırasında bir hata oluştu."}
 
-    # --- GÜNCELLENMİŞ CEZA AFFETME (Admin İçin) ---
+    # --- CEZA AFFETME (Admin İçin) ---
     @staticmethod
     def forgive_fines(user_id):
         try:
@@ -160,7 +158,6 @@ class LoanService:
             logger.error(f"Cezaları affetme hatası (user_id={user_id}): {str(e)}")
             return False
 
-    # ... (Geri kalan return_book, get_user_active_loans vb. metodları aynen kalabilir) ...
     @staticmethod
     def return_book(user_id, book_id):
         try:
@@ -175,7 +172,8 @@ class LoanService:
 
             if not active_borrow:
                 # IDOR koruması: Kullanıcı başkasının kitabını iade edemez
-                logger.warning(f"IDOR koruması: user_id={user_id} başkasının kitabını iade etmeye çalıştı (book_id={book_id})")
+                logger.warning(
+                    f"IDOR koruması: user_id={user_id} başkasının kitabını iade etmeye çalıştı (book_id={book_id})")
                 return {"success": False, "message": "Bu kitap zaten sizde görünmüyor."}
 
             now = datetime.now(timezone.utc)
@@ -236,26 +234,26 @@ class LoanService:
         total = 0.0
         now = datetime.now(timezone.utc)
         daily_fee = current_app.config.get('DAILY_FINE', 50.0)
-        
+
         for borrow in active_borrows:
             # Mevcut ceza miktarını al
             fine = borrow.fine_amount or 0.0
-            
+
             # Eğer due_date geçmişse, güncel cezayı hesapla
             if borrow.due_date:
                 due_date = borrow.due_date
                 if due_date.tzinfo is None:
                     due_date = due_date.replace(tzinfo=timezone.utc)
-                
+
                 if now > due_date:
                     days_overdue = (now - due_date).days
                     current_fine = days_overdue * daily_fee
                     # Mevcut cezadan büyükse güncelle
                     if current_fine > fine:
                         fine = current_fine
-            
+
             total += fine
-        
+
         return total
 
     @staticmethod
@@ -273,7 +271,7 @@ class LoanService:
             days_overdue = 0
 
             if borrow.due_date:
-                # Offset-naive datetime'ı offset-aware'a çevir
+                # Offset-naive datetimeı offset-awarea çevir
                 due_date = borrow.due_date
                 if due_date.tzinfo is None:
                     # Eğer timezone bilgisi yoksa UTC olarak kabul et

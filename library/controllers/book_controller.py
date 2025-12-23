@@ -35,7 +35,6 @@ def library_page():
         return redirect(url_for('book_bp.library_page'))
 
     # --- GET İSTEĞİ (SAYFA GÖRÜNTÜLEME) ---
-    # Eksik olan kısım burasıydı:
     page = request.args.get('page', 1, type=int)
     search_query = request.args.get('q')
 

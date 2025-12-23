@@ -1,4 +1,3 @@
-
 import os
 import secrets
 from PIL import Image
@@ -43,11 +42,11 @@ class FileService:
             
             picture_path = os.path.join(picture_dir, picture_fn)
 
-            # Resmi boyutlandır (Örn: 250x400 pixel)
+            # Resmi boyutlandır
             output_size = (250, 400)
             i = Image.open(form_picture)
             
-            # Resmi RGB'ye çevir (RGBA veya diğer modlar için)
+            # Resmi RGB'ye çevir
             if i.mode != 'RGB':
                 i = i.convert('RGB')
             

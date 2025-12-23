@@ -10,6 +10,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class BookService:
     # Depoları başlatıyoruz
     book_repo = BookRepository()
@@ -21,7 +22,7 @@ class BookService:
         """Yazar string veya Author objesi olabilir. Varsa getirir, yoksa oluşturur."""
         if isinstance(author_input, Author):
             return author_input
-        
+
         if isinstance(author_input, str):
             author_obj = BookService.author_repo.get_by_name(author_input)
             if not author_obj:
@@ -29,7 +30,7 @@ class BookService:
                 db.session.add(author_obj)
                 db.session.flush()  # ID'yi almak için flush
             return author_obj
-        
+
         raise ValueError(f"Geçersiz yazar tipi: {type(author_input)}")
 
     @staticmethod
@@ -37,7 +38,7 @@ class BookService:
         """Kategori string veya Category objesi olabilir. Varsa getirir, yoksa oluşturur."""
         if isinstance(category_input, Category):
             return category_input
-        
+
         if isinstance(category_input, str):
             category_obj = BookService.category_repo.get_by_name(category_input)
             if not category_obj:
@@ -45,10 +46,9 @@ class BookService:
                 db.session.add(category_obj)
                 db.session.flush()  # ID'yi almak için flush
             return category_obj
-        
+
         raise ValueError(f"Geçersiz kategori tipi: {type(category_input)}")
 
-    # --- HATA ÇÖZÜMÜ: Bu metot eksikti, eklendi ---
     @staticmethod
     def get_all_paginated(page=1, per_page=12):
         """Kitapları sayfalı şekilde getirir."""
@@ -109,7 +109,7 @@ class BookService:
                 if book.image_file and book.image_file != 'default.jpg':
                     from library.services.file_service import FileService
                     FileService.delete_picture(book.image_file)
-                
+
                 BookService.book_repo.delete(book)
                 return True
             return False
@@ -130,13 +130,13 @@ class BookService:
             old_image_file = book.image_file  # Eski resmi sakla
 
             # Temel Bilgiler
-            if 'name' in data and data['name']: 
+            if 'name' in data and data['name']:
                 book.name = data['name']
-            if 'barcode' in data and data['barcode']: 
+            if 'barcode' in data and data['barcode']:
                 book.barcode = data['barcode']
-            if 'description' in data and data['description']: 
+            if 'description' in data and data['description']:
                 book.description = data['description']
-            
+
             # Resim güncelleme
             if 'image_file' in data and data['image_file']:
                 # Yeni resim varsa eski resmi sil (default.jpg hariç)

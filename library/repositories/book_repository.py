@@ -51,6 +51,7 @@ class BookRepository(BaseRepository):
         """
         Kitabı ID'ye göre getirir ve işlem (transaction) bitene kadar
         bu satırı veritabanında kilitler (SELECT ... FOR UPDATE).
+        deadlock engellemek için
         """
         return Book.query.options(
             joinedload(Book.author),

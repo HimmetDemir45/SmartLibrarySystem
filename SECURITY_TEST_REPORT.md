@@ -25,7 +25,7 @@
 ### 3. Bütçe Manipülasyonu
 **Test:** Negatif değer, büyük değer, tip kontrolü
 - ✅ Negatif değer kontrolü eklendi
-- ✅ Maksimum bakiye limiti eklendi (1 milyon TL)
+- ✅ Maksimum bakiye limiti eklendi (1000 TL)
 - ✅ Tip kontrolü ve validasyon eklendi
 - ✅ String değer kontrolü eklendi
 

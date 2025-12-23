@@ -15,12 +15,12 @@ from sqlalchemy import func
 from library.models.book import Book
 from library.models.category import Category
 import logging
-import math
 
 # Hata ayıklama için logger
 logger = logging.getLogger(__name__)
 
 admin_bp = Blueprint('admin_bp', __name__)
+
 
 def admin_required(f):
     @wraps(f)
@@ -35,7 +35,9 @@ def admin_required(f):
             from flask import abort
             abort(403)
         return f(*args, **kwargs)
+
     return decorated_function
+
 
 @admin_bp.route('/admin_dashboard', methods=['GET', 'POST'])
 @admin_required
@@ -147,8 +149,6 @@ def admin_page():
                            library_stats=library_stats,
                            monthly_report=monthly_report)
 
-# ... (Diğer rotalar: update_author, delete_category, forgive_fines vb. aynı kalabilir) ...
-# Ancak dosyanın bütünlüğü için aşağıdakileri de ekliyorum:
 
 @admin_bp.route('/admin/update_author/<int:author_id>', methods=['POST'])
 @admin_required
@@ -164,6 +164,7 @@ def update_author(author_id):
             flash(f"Hata: {str(e)}", 'danger')
     return redirect(url_for('admin_bp.admin_page'))
 
+
 @admin_bp.route('/admin/delete_category/<int:category_id>', methods=['POST'])
 @admin_required
 def delete_category(category_id):
@@ -176,6 +177,7 @@ def delete_category(category_id):
         flash(f"Hata: {str(e)}", 'danger')
     return redirect(url_for('admin_bp.admin_page'))
 
+
 @admin_bp.route('/admin/forgive_fines/<int:user_id>', methods=['POST'])
 @admin_required
 def forgive_fines(user_id):
@@ -184,6 +186,7 @@ def forgive_fines(user_id):
     else:
         flash(f"İşlem başarısız.", 'danger')
     return redirect(url_for('admin_bp.admin_page'))
+
 
 @admin_bp.route('/admin/update_book/<int:book_id>', methods=['POST'])
 @admin_required
@@ -207,6 +210,7 @@ def update_book(book_id):
         flash(f"Hata: {e}", 'danger')
     return redirect(url_for('admin_bp.admin_page'))
 
+
 @admin_bp.route('/admin/delete_book/<int:book_id>', methods=['POST'])
 @admin_required
 def delete_book(book_id):
@@ -219,6 +223,7 @@ def delete_book(book_id):
         flash(f"Hata: {e}", 'danger')
     return redirect(url_for('admin_bp.admin_page'))
 
+
 @admin_bp.route('/admin/approve_user/<int:user_id>', methods=['POST'])
 @admin_required
 def approve_user(user_id):
@@ -229,6 +234,7 @@ def approve_user(user_id):
         db.session.commit()
         flash(f"{user.username} onaylandı.", "success")
     return redirect(url_for('admin_bp.admin_page'))
+
 
 @admin_bp.route('/admin/update_budget/<int:user_id>', methods=['POST'])
 @admin_required
@@ -247,17 +253,17 @@ def update_budget(user_id):
 
         operation = request.form.get('operation')
         amount_str = request.form.get('amount', '0')
-        
+
         # Tip kontrolü ve validasyon - Daha sıkı kontrol
         if not amount_str or amount_str.strip() == '':
             flash("Miktar boş olamaz.", "danger")
             return redirect(url_for('admin_bp.admin_page'))
-        
+
         # String kontrolü - sadece sayısal karakterler
         if not amount_str.replace('.', '').replace('-', '').isdigit():
             flash("Geçersiz miktar değeri. Sadece sayısal değer kabul edilir.", "danger")
             return redirect(url_for('admin_bp.admin_page'))
-        
+
         try:
             amount = float(amount_str)
         except (ValueError, TypeError):
@@ -268,7 +274,7 @@ def update_budget(user_id):
         if amount < 0:
             flash("Miktar negatif olamaz.", "danger")
             return redirect(url_for('admin_bp.admin_page'))
-        
+
         # NaN ve Infinity kontrolü
         import math
         if math.isnan(amount) or math.isinf(amount):
@@ -276,7 +282,7 @@ def update_budget(user_id):
             return redirect(url_for('admin_bp.admin_page'))
 
         # Maksimum değer kontrolü (güvenlik için)
-        MAX_BUDGET = 1000000  # 1 milyon TL maksimum
+        MAX_BUDGET = 1000  # 1000 TL maksimum
         if amount > MAX_BUDGET:
             flash(f"Maksimum bakiye limiti aşıldı (Max: {MAX_BUDGET} TL)", "danger")
             return redirect(url_for('admin_bp.admin_page'))
@@ -304,7 +310,8 @@ def update_budget(user_id):
             return redirect(url_for('admin_bp.admin_page'))
 
         db.session.commit()
-        logger.info(f"Bakiye güncellendi: user_id={user_id}, operation={operation}, amount={amount}, old={old_budget}, new={user.budget}")
+        logger.info(
+            f"Bakiye güncellendi: user_id={user_id}, operation={operation}, amount={amount}, old={old_budget}, new={user.budget}")
         return redirect(url_for('admin_bp.admin_page'))
 
     except ValueError:

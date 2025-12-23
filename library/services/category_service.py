@@ -64,7 +64,3 @@ class CategoryService:
         except SQLAlchemyError as e:
             logger.error(f"Kategori silme hatası (category_id={category_id}): {str(e)}")
             raise
-
-    # Repository'nizde eksikse bu metodu eklemeniz gerekebilir
-    # Ancak BookRepository'de benzerini yapmıştık, CategoryRepository'de de
-    # find_by_name veya get_by_name olmalı.

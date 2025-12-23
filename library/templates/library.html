@@ -96,6 +96,7 @@ Kütüphane Kataloğu
                     <i class="fas fa-info-circle"></i> İade işlemi yapıldığında ceza kontrolü otomatik yapılacaktır.
                 </p>
                 <form method="POST" action="{{ url_for('book_bp.library_page') }}" id="return-form-{{ owned_item.id }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <input name="returned_book_id" type="hidden" value="{{ owned_item.id }}">
                     <button class="btn btn-danger btn-lg btn-block return-btn" type="submit">
                         <i class="fas fa-check-circle mr-2"></i>Onayla ve İade Et

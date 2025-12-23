@@ -16,7 +16,7 @@
     .card-img-wrapper {
         height: 250px; /* Resim yüksekliği sabit */
         overflow: hidden;
-        border-bottom: 1px solid rgba(255,255,255,0.1);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .card-img-top {
@@ -28,62 +28,69 @@
 
 <div class="row">
     {% for item in items.items %}
-        <div class="col-sm-6 col-md-4 col-lg-3 mb-4"> <div class="card h-100 book-card-item text-white">
+        <div class="col-sm-6 col-md-4 col-lg-3 mb-4">
+            <div class="card h-100 book-card-item text-white">
 
-            <div class="card-img-wrapper">
-                <img src="{{ url_for('static', filename='book_pics/' + item.image_file) }}"
-                     class="card-img-top"
-                     alt="{{ item.name }}">
-            </div>
-
-            <div class="card-body d-flex flex-column">
-                <h5 class="card-title text-truncate" title="{{ item.name }}" style="color: #00d2ff;">
-                    {{ item.name }}
-                </h5>
-                <p class="card-text text-muted mb-1">
-                    <i class="fas fa-pen-nib small"></i> {{ item.author.name }}
-                </p>
-
-                <div class="mb-3">
-                    <span class="badge badge-secondary">{{ item.category.name }}</span>
-                    {% if item.is_available %}
-                        <span class="badge badge-success"><i class="fas fa-check"></i> Müsait</span>
-                    {% else %}
-                        <span class="badge badge-danger"><i class="fas fa-times"></i> Dolu</span>
-                    {% endif %}
+                <div class="card-img-wrapper">
+                    <img src="{{ url_for('static', filename='book_pics/' + item.image_file) }}"
+                         class="card-img-top"
+                         alt="{{ item.name }}">
                 </div>
 
-                <div class="mt-auto">
-                    <div class="btn-group w-100" role="group">
-                        <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#Modal-MoreInfo-{{ item.id }}">
-                            <i class="fas fa-info"></i>
-                        </button>
-                        {% if current_user.is_authenticated %}
-                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="askAboutBook('{{ item.name }}')" title="AI'ya Sor">
-                            <i class="fas fa-robot"></i>
-                        </button>
-                        {% endif %}
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title text-truncate" title="{{ item.name }}" style="color: #00d2ff;">
+                        {{ item.name }}
+                    </h5>
+                    <p class="card-text text-muted mb-1">
+                        <i class="fas fa-pen-nib small"></i> {{ item.author.name }}
+                    </p>
 
-                        {% if current_user.is_admin %}
-                            <button type="button" class="btn btn-sm btn-outline-warning" data-toggle="modal" data-target="#Modal-EditBook-{{ item.id }}">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <a href="{{ url_for('book_bp.delete_book_web', id=item.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Silmek istediğinize emin misiniz?');">
-                                <i class="fas fa-trash"></i>
-                            </a>
+                    <div class="mb-3">
+                        <span class="badge badge-secondary">{{ item.category.name }}</span>
+                        {% if item.is_available %}
+                            <span class="badge badge-success"><i class="fas fa-check"></i> Müsait</span>
                         {% else %}
-                            {% if item.is_available %}
-                                <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#Modal-PurchaseConfirm-{{ item.id }}">
-                                    Al
-                                </button>
-                            {% else %}
-                                <button type="button" class="btn btn-sm btn-secondary" disabled>Dolu</button>
-                            {% endif %}
+                            <span class="badge badge-danger"><i class="fas fa-times"></i> Dolu</span>
                         {% endif %}
+                    </div>
+
+                    <div class="mt-auto">
+                        <div class="btn-group w-100" role="group">
+                            <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
+                                    data-target="#Modal-MoreInfo-{{ item.id }}">
+                                <i class="fas fa-info"></i>
+                            </button>
+                            {% if current_user.is_authenticated %}
+                                <button type="button" class="btn btn-sm btn-outline-primary"
+                                        onclick="askAboutBook('{{ item.name }}')" title="AI'ya Sor">
+                                    <i class="fas fa-robot"></i>
+                                </button>
+                            {% endif %}
+
+                            {% if current_user.is_admin %}
+                                <button type="button" class="btn btn-sm btn-outline-warning" data-toggle="modal"
+                                        data-target="#Modal-EditBook-{{ item.id }}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <a href="{{ url_for('book_bp.delete_book_web', id=item.id) }}"
+                                   class="btn btn-sm btn-outline-danger"
+                                   onclick="return confirm('Silmek istediğinize emin misiniz?');">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            {% else %}
+                                {% if item.is_available %}
+                                    <button type="button" class="btn btn-sm btn-success" data-toggle="modal"
+                                            data-target="#Modal-PurchaseConfirm-{{ item.id }}">
+                                        Al
+                                    </button>
+                                {% else %}
+                                    <button type="button" class="btn btn-sm btn-secondary" disabled>Dolu</button>
+                                {% endif %}
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
         </div>
 
         <div class="modal fade" id="Modal-MoreInfo-{{ item.id }}" tabindex="-1" role="dialog" aria-hidden="true">
@@ -91,11 +98,13 @@
                 <div class="modal-content text-dark">
                     <div class="modal-header">
                         <h5 class="modal-title">{{ item.name }}</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
                     </div>
                     <div class="modal-body">
                         <div class="text-center mb-3">
-                            <img src="{{ url_for('static', filename='book_pics/' + item.image_file) }}" style="height: 150px; border-radius: 5px;">
+                            <img src="{{ url_for('static', filename='book_pics/' + item.image_file) }}"
+                                 style="height: 150px; border-radius: 5px;">
                         </div>
                         <p><strong>Yazar:</strong> {{ item.author.name }}</p>
                         <p><strong>Kategori:</strong> {{ item.category.name }}</p>
@@ -108,18 +117,21 @@
         </div>
 
         {% if not current_user.is_admin and item.is_available %}
-            <div class="modal fade" id="Modal-PurchaseConfirm-{{ item.id }}" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal fade" id="Modal-PurchaseConfirm-{{ item.id }}" tabindex="-1" role="dialog"
+                 aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content text-dark">
                         <div class="modal-header">
                             <h5 class="modal-title">{{ item.name }}</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                    aria-hidden="true">&times;</span></button>
                         </div>
                         <div class="modal-body text-center">
                             <i class="fas fa-book-reader fa-3x text-success mb-3"></i>
                             <h4>Ödünç almak istiyor musunuz?</h4>
                             <p class="text-muted">İade Süresi: 15 Gün</p>
                             <form method="POST" action="{{ url_for('book_bp.library_page') }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                 <input name="borrowed_book_id" type="hidden" value="{{ item.id }}">
                                 <button class="btn btn-success btn-lg btn-block" type="submit">Evet, Ödünç Al</button>
                             </form>
@@ -135,24 +147,49 @@
                     <div class="modal-content text-dark">
                         <div class="modal-header bg-warning">
                             <h5 class="modal-title">Düzenle: {{ item.name }}</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                    aria-hidden="true">&times;</span></button>
                         </div>
                         <div class="modal-body">
-                            <form action="{{ url_for('book_bp.edit_book_web', id=item.id) }}" method="POST" enctype="multipart/form-data">
-                                <div class="form-group"><label>Kitap Adı</label><input type="text" name="name" class="form-control" value="{{ item.name }}"></div>
-                                <div class="form-group"><label>Yazar</label><input type="text" name="author" class="form-control" value="{{ item.author.name }}"></div>
-                                <div class="form-group"><label>Kategori</label><input type="text" name="category" class="form-control" value="{{ item.category.name }}"></div>
-                                <div class="form-group"><label>Barkod</label><input type="text" name="barcode" class="form-control" value="{{ item.barcode }}"></div>
-                                <div class="form-group"><label>Açıklama</label><textarea name="description" class="form-control" rows="3">{{ item.description }}</textarea></div>
+                            <form action="{{ url_for('book_bp.edit_book_web', id=item.id) }}" method="POST"
+                                  enctype="multipart/form-data">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <div class="form-group"><label>Kitap Adı</label><input type="text" name="name"
+                                                                                       class="form-control"
+                                                                                       value="{{ item.name }}"></div>
+                                <div class="form-group"><label>Yazar</label><input type="text" name="author"
+                                                                                   class="form-control"
+                                                                                   value="{{ item.author.name }}"></div>
+                                <div class="form-group"><label>Kategori</label><input type="text" name="category"
+                                                                                      class="form-control"
+                                                                                      value="{{ item.category.name }}">
+                                </div>
+                                <div class="form-group">
+                                    <label>Barkod</label>
+                                    <input type="text"
+                                           name="barcode"
+                                           class="form-control"
+                                           value="{{ item.barcode }}"
+                                           maxlength="12"
+                                           inputmode="numeric"
+                                           oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                           required>
+                                </div>
+                                <div class="form-group"><label>Açıklama</label><textarea name="description"
+                                                                                         class="form-control"
+                                                                                         rows="3">{{ item.description }}</textarea>
+                                </div>
                                 <div class="form-group">
                                     <label>Kitap Kapağı</label>
                                     <div class="mb-2">
-                                        <img src="{{ url_for('static', filename='book_pics/' + item.image_file) }}" 
-                                             style="max-height: 100px; border-radius: 5px;" 
+                                        <img src="{{ url_for('static', filename='book_pics/' + item.image_file) }}"
+                                             style="max-height: 100px; border-radius: 5px;"
                                              alt="Mevcut resim">
                                     </div>
-                                    <input type="file" name="image" class="form-control-file" accept="image/jpeg,image/png,image/jpg">
-                                    <small class="form-text text-muted">Yeni resim yüklemezseniz mevcut resim korunur.</small>
+                                    <input type="file" name="image" class="form-control-file"
+                                           accept="image/jpeg,image/png,image/jpg">
+                                    <small class="form-text text-muted">Yeni resim yüklemezseniz mevcut resim
+                                        korunur.</small>
                                 </div>
                                 <button type="submit" class="btn btn-warning btn-block">Değişiklikleri Kaydet</button>
                             </form>
@@ -173,11 +210,17 @@
     <nav aria-label="Page navigation" class="mt-4 pb-4">
         <ul class="pagination justify-content-center">
             {% if items.has_prev %}
-                <li class="page-item"><a class="page-link bg-dark text-info border-secondary" href="{{ url_for('book_bp.library_page', page=items.prev_num) }}">&laquo; Önceki</a></li>
+                <li class="page-item"><a class="page-link bg-dark text-info border-secondary"
+                                         href="{{ url_for('book_bp.library_page', page=items.prev_num) }}">&laquo;
+                    Önceki</a></li>
             {% endif %}
-            <li class="page-item disabled"><span class="page-link bg-secondary text-white border-secondary">{{ items.page }} / {{ items.pages }}</span></li>
+            <li class="page-item disabled"><span
+                    class="page-link bg-secondary text-white border-secondary">{{ items.page }} / {{ items.pages }}</span>
+            </li>
             {% if items.has_next %}
-                <li class="page-item"><a class="page-link bg-dark text-info border-secondary" href="{{ url_for('book_bp.library_page', page=items.next_num) }}">Sonraki &raquo;</a></li>
+                <li class="page-item"><a class="page-link bg-dark text-info border-secondary"
+                                         href="{{ url_for('book_bp.library_page', page=items.next_num) }}">Sonraki
+                    &raquo;</a></li>
             {% endif %}
         </ul>
     </nav>

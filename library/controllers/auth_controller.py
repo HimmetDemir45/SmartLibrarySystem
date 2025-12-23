@@ -1,6 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from library.forms import RegisterForm, LoginForm
-from library.models import User
 from library.services.auth_service import AuthService
 from flask_login import login_user, logout_user
 from library.middleware.rate_limiter import RateLimiter

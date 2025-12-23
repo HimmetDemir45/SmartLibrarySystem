@@ -161,52 +161,52 @@
         </div>
         <!-- İstatistik Kartları -->
         {% if library_stats %}
-        <div class="row mt-4">
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="stat-card stat-card-books">
-                    <div class="stat-icon">
-                        <i class="fas fa-book"></i>
+            <div class="row mt-4">
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="stat-card stat-card-books">
+                        <div class="stat-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>{{ library_stats.total_books }}</h3>
+                            <p>Toplam Kitap</p>
+                        </div>
                     </div>
-                    <div class="stat-content">
-                        <h3>{{ library_stats.total_books }}</h3>
-                        <p>Toplam Kitap</p>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="stat-card stat-card-available">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>{{ library_stats.available_books }}</h3>
+                            <p>Müsait Kitap</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="stat-card stat-card-borrowed">
+                        <div class="stat-icon">
+                            <i class="fas fa-book-reader"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>{{ library_stats.borrowed_books }}</h3>
+                            <p>Ödünç Alınan</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-3">
+                    <div class="stat-card stat-card-users">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>{{ library_stats.total_users }}</h3>
+                            <p>Toplam Üye</p>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="stat-card stat-card-available">
-                    <div class="stat-icon">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3>{{ library_stats.available_books }}</h3>
-                        <p>Müsait Kitap</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="stat-card stat-card-borrowed">
-                    <div class="stat-icon">
-                        <i class="fas fa-book-reader"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3>{{ library_stats.borrowed_books }}</h3>
-                        <p>Ödünç Alınan</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="stat-card stat-card-users">
-                    <div class="stat-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3>{{ library_stats.total_users }}</h3>
-                        <p>Toplam Üye</p>
-                    </div>
-                </div>
-            </div>
-        </div>
         {% endif %}
 
         <!-- Grafik Bölümü -->
@@ -224,15 +224,15 @@
                     <hr style="background-color: rgba(255,255,255,0.2);">
                     <div class="mt-4">
                         {% if library_stats %}
-                        <h2 class="text-info">{{ library_stats.recent_borrows }}</h2>
-                        <p class="text-muted">Yeni Ödünç Alma</p>
-                        <div class="progress mt-3" style="height: 30px; background-color: rgba(255,255,255,0.1);">
-                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" 
-                                 role="progressbar" 
-                                 style="width: {{ (library_stats.recent_borrows / library_stats.total_borrows * 100) if library_stats.total_borrows > 0 else 0 }}%">
-                                {{ "%.1f"|format((library_stats.recent_borrows / library_stats.total_borrows * 100) if library_stats.total_borrows > 0 else 0) }}%
+                            <h2 class="text-info">{{ library_stats.recent_borrows }}</h2>
+                            <p class="text-muted">Yeni Ödünç Alma</p>
+                            <div class="progress mt-3" style="height: 30px; background-color: rgba(255,255,255,0.1);">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-info"
+                                     role="progressbar"
+                                     style="width: {{ (library_stats.recent_borrows / library_stats.total_borrows * 100) if library_stats.total_borrows > 0 else 0 }}%">
+                                    {{ "%.1f"|format((library_stats.recent_borrows / library_stats.total_borrows * 100) if library_stats.total_borrows > 0 else 0) }}%
+                                </div>
                             </div>
-                        </div>
                         {% endif %}
                     </div>
                 </div>
@@ -338,8 +338,10 @@
                                             <span class="badge badge-success">Onaylı</span>
                                         {% else %}
                                             <span class="badge badge-warning">Onay Bekliyor</span>
-                                            <form action="{{ url_for('admin_bp.approve_user', user_id=user.id) }}" method="POST" style="display:inline;">
-                                                <button type="submit" class="btn btn-sm btn-success ml-1" title="Kullanıcıyı Onayla">
+                                            <form action="{{ url_for('admin_bp.approve_user', user_id=user.id) }}"
+                                                  method="POST" style="display:inline;">
+                                                <button type="submit" class="btn btn-sm btn-success ml-1"
+                                                        title="Kullanıcıyı Onayla">
                                                     <i class="fas fa-check"></i>
                                                 </button>
                                             </form>
@@ -347,13 +349,14 @@
                                     </td>
                                     <td>
                                         <div class="btn-group" role="group">
-                                            <button type="button" class="btn btn-sm btn-outline-info" 
-                                                    data-toggle="modal" 
+                                            <button type="button" class="btn btn-sm btn-outline-info"
+                                                    data-toggle="modal"
                                                     data-target="#Modal-EditBudget-{{ user.id }}"
                                                     title="Bakiye Düzenle">
                                                 <i class="fas fa-wallet"></i>
                                             </button>
-                                            <form action="{{ url_for('admin_bp.forgive_fines', user_id=user.id) }}" method="POST" style="display:inline;">
+                                            <form action="{{ url_for('admin_bp.forgive_fines', user_id=user.id) }}"
+                                                  method="POST" style="display:inline;">
                                                 <button type="submit" class="btn btn-sm btn-outline-danger"
                                                         onclick="return confirm('Bu kullanıcının TÜM cezalarını silmek istediğinize emin misiniz?');"
                                                         title="Ceza Affet">
@@ -440,7 +443,16 @@
                             </div>
                             <div class="col-md-6 form-group">
                                 <label>Barkod (12 Hane)</label>
-                                {{ add_book_form.barcode(class="form-control", placeholder="Örn: 123456789012") }}
+                                <div class="col-md-6 form-group">
+                                    {{ add_book_form.barcode(
+                                            class="form-control",
+                                            placeholder="Örn: 123456789012",
+                                            maxlength="12",
+                                            inputmode="numeric",
+                                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                            )
+                                    }}
+                                </div>
                             </div>
                         </div>
 
@@ -477,38 +489,38 @@
 
     <!-- Bakiye Düzenleme Modal'ları -->
     {% for user in all_users %}
-    <div class="modal fade" id="Modal-EditBudget-{{ user.id }}" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content" style="background-color: #2c3e50;">
-                <div class="modal-header">
-                    <h5 class="modal-title">Bakiye Düzenle: {{ user.username }}</h5>
-                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="alert alert-info">
-                        <strong>Mevcut Bakiye:</strong> {{ user.budget }} TL
+        <div class="modal fade" id="Modal-EditBudget-{{ user.id }}" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content" style="background-color: #2c3e50;">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Bakiye Düzenle: {{ user.username }}</h5>
+                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
-                    <form action="{{ url_for('admin_bp.update_budget', user_id=user.id) }}" method="POST">
-                        <div class="form-group">
-                            <label>İşlem Türü</label>
-                            <select name="operation" class="form-control" required>
-                                <option value="add">Bakiye Ekle</option>
-                                <option value="subtract">Bakiye Çıkar</option>
-                                <option value="set">Bakiye Belirle</option>
-                            </select>
+                    <div class="modal-body">
+                        <div class="alert alert-info">
+                            <strong>Mevcut Bakiye:</strong> {{ user.budget }} TL
                         </div>
-                        <div class="form-group">
-                            <label>Miktar (TL)</label>
-                            <input type="number" name="amount" class="form-control" min="0" step="0.01" required>
-                        </div>
-                        <button type="submit" class="btn btn-info btn-block">Güncelle</button>
-                    </form>
+                        <form action="{{ url_for('admin_bp.update_budget', user_id=user.id) }}" method="POST">
+                            <div class="form-group">
+                                <label>İşlem Türü</label>
+                                <select name="operation" class="form-control" required>
+                                    <option value="add">Bakiye Ekle</option>
+                                    <option value="subtract">Bakiye Çıkar</option>
+                                    <option value="set">Bakiye Belirle</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Miktar (TL)</label>
+                                <input type="number" name="amount" class="form-control" min="0" step="0.01" required>
+                            </div>
+                            <button type="submit" class="btn btn-info btn-block">Güncelle</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
     {% endfor %}
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -542,7 +554,7 @@
                 'rgba(103, 58, 183, 0.85)',   // Derin Mor
                 'rgba(244, 67, 54, 0.85)'     // Kırmızı 2
             ];
-            
+
             // Eğer daha fazla kategori varsa renkleri tekrarla
             const result = [];
             for (let i = 0; i < count; i++) {
@@ -603,7 +615,7 @@
                         padding: 12,
                         displayColors: true,
                         callbacks: {
-                            label: function(context) {
+                            label: function (context) {
                                 let label = context.label || '';
                                 if (label) {
                                     label += ': ';

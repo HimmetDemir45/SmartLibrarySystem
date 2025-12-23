@@ -1,6 +1,5 @@
 from library.models.borrow import Borrow
 from library.models.book import Book
-from library.models.user import User
 from library.repositories.base_repository import BaseRepository
 from sqlalchemy.orm import joinedload
 

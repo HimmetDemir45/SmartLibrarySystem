@@ -1,7 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, TextAreaField
-from wtforms.validators import Length, EqualTo, Email, DataRequired, ValidationError
-from library.models import User
+from wtforms.validators import Length, EqualTo, Email, DataRequired, ValidationError,Regexp
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import TextAreaField
 
@@ -56,13 +55,15 @@ class AddBookForm(FlaskForm):
     author = QuerySelectField(label='Yazar:', query_factory=get_authors, allow_blank=False, get_label='name')
     # Kategorileri çekmek için get_categories fonksiyonunu kullanacak.
     category = QuerySelectField(label='Kategori:', query_factory=get_categories, allow_blank=False, get_label='name')
-    barcode = StringField(label='Barkod:', validators=[Length(min=12, max=12), DataRequired()])
+    barcode = StringField(label='Barkod:', validators=[
+        Length(min=12, max=12, message="Barkod tam 12 hane olmalıdır."),
+        DataRequired(),
+        Regexp('^[0-9]*$', message="Barkod sadece rakamlardan oluşabilir.")
+    ])
     description = TextAreaField(label='Açıklama:', validators=[DataRequired()])
     image = FileField('Kitap Kapağı', validators=[FileAllowed(['jpg', 'png', 'jpeg'])])
     submit = SubmitField(label='Kitabı Kütüphaneye Ekle')
 
-# library/forms.py (Dosyanın sonuna ekleyin)
-# ... Mevcut kodlar ...
 
 # --- YAZAR VE KATEGORİ YÖNETİM FORMLARI (ADMIN) ---
 
@@ -87,7 +88,11 @@ class EditBookForm(FlaskForm):
     # Not: Servis katmanınız string beklediği için şimdilik StringField kullanıyoruz.
     author = StringField(label='Yazar:', validators=[DataRequired()])
     category = StringField(label='Kategori:', validators=[DataRequired()])
-    barcode = StringField(label='Barkod:', validators=[Length(min=12, max=12), DataRequired()])
+    barcode = StringField(label='Barkod:', validators=[
+        Length(min=12, max=12, message="Barkod tam 12 hane olmalıdır."),
+        DataRequired(),
+        Regexp('^[0-9]*$', message="Barkod sadece rakamlardan oluşabilir.")
+    ])
     description = TextAreaField(label='Açıklama:', validators=[DataRequired()])
     image = FileField('Kitap Kapağı', validators=[FileAllowed(['jpg', 'png', 'jpeg'])])
     submit = SubmitField(label='Değişiklikleri Kaydet')

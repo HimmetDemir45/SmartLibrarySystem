@@ -3,16 +3,19 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_migrate import Migrate
+from flask_wtf.csrf import CSRFProtect
 from config import Config
 import logging
 from logging.handlers import RotatingFileHandler
 import os
+
 
 app = Flask(__name__)
 app.config.from_object(Config)
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
+csrf = CSRFProtect(app)
 login_manager.login_view = "auth_bp.login_page"
 login_manager.login_message_category = "info"
 login_manager.login_message = ""
@@ -32,6 +35,7 @@ if not app.debug:
     app.logger.setLevel(logging.INFO)
     app.logger.info('Library uygulaması başlatıldı')
 
+# app tanımlanmadan import edilirlerse hata olur
 from library.controllers.main_controller import main_bp
 from library.controllers.auth_controller import auth_bp
 from library.controllers.book_controller import book_bp
