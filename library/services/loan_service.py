@@ -54,7 +54,7 @@ class LoanService:
             borrow_date = datetime.now(timezone.utc)
             # Ödünç süresini config'den al
             loan_period = current_app.config.get('LOAN_PERIOD_DAYS', 15)
-            due_date = borrow_date + timedelta(days=loan_period)  # <--
+            due_date = borrow_date + timedelta(minutes=1)  # <-- days=loan_period
 
             new_borrow = Borrow(
                 user_id=user_id,
@@ -138,18 +138,34 @@ class LoanService:
     @staticmethod
     def forgive_fines(user_id):
         try:
-            # Stored Procedure yerine Python ORM kullanıyoruz
             from library.models.borrow import Borrow
 
-            # Sadece aktif borçlardaki cezaları sıfırlıyoruz
-            active_borrows = Borrow.query.filter_by(user_id=user_id, return_date=None).all()
+            # HATA DÜZELTME 1: return_date=None filtresini kaldırdık.
+            # Artık kullanıcının iade ettiği kitaplardan kalan borçları da gelecek.
+            all_borrows = Borrow.query.filter_by(user_id=user_id).all()
 
-            # Eğer hiç ceza/borç yoksa bile True dönebiliriz veya kontrol edebiliriz
             count = 0
-            for borrow in active_borrows:
+            now = datetime.now(timezone.utc)
+
+            for borrow in all_borrows:
+                # 1. Mevcut ceza tutarını sıfırla
                 if borrow.fine_amount > 0:
-                    borrow.fine_amount = 0
+                    borrow.fine_amount = 0.0
                     count += 1
+
+                # HATA DÜZELTME 2: Eğer kitap hala kullanıcıdaysa (Aktif) ve süresi geçmişse,
+                # teslim tarihini (due_date) şu ana çekmeliyiz.
+                # Aksi takdirde sistem "süresi geçmiş" deyip saniyesinde tekrar ceza yazar.
+                if borrow.return_date is None and borrow.due_date:
+                    # Timezone uyumluluğu kontrolü
+                    due_date = borrow.due_date
+                    if due_date.tzinfo is None:
+                        due_date = due_date.replace(tzinfo=timezone.utc)
+
+                    if now > due_date:
+                        # Teslim tarihini 'şimdi' yaparak gecikmeyi sıfırlıyoruz
+                        borrow.due_date = now + timedelta(minutes=1)
+                        logger.info(f"Kullanıcı affedildi, kitap süresi uzatıldı: borrow_id={borrow.id}")
 
             db.session.commit()
             return True
@@ -157,7 +173,6 @@ class LoanService:
             db.session.rollback()
             logger.error(f"Cezaları affetme hatası (user_id={user_id}): {str(e)}")
             return False
-
     @staticmethod
     def return_book(user_id, book_id):
         try:
@@ -188,13 +203,18 @@ class LoanService:
                 if due_date.tzinfo is None:
                     due_date = due_date.replace(tzinfo=timezone.utc)
                 logger.info(f"Due Date: {due_date}, Bugün: {now}")
+                # if now > due_date:
+                #     days_overdue = (now - due_date).days
+                #     daily_fee = current_app.config.get('DAILY_FINE', 50.0)
+                #     fine_amount = days_overdue * daily_fee
                 if now > due_date:
-                    days_overdue = (now - due_date).days
-                    daily_fee = current_app.config.get('DAILY_FINE', 50.0)
-                    fine_amount = days_overdue * daily_fee
+                    minutes_overdue = int((now - due_date).total_seconds() / 60)
+                    daily_fee = current_app. config.get('DAILY_FINE', 50.0)
+                    fine_amount = minutes_overdue * daily_fee
                     active_borrow.fine_amount = fine_amount
+                    #logger.info(f"Gecikme cezası hesaplandı: {fine_amount} TL ({days_overdue} gün) - User: {user_id}, Book: {book_id}")
                     logger.info(
-                        f"Gecikme cezası hesaplandı: {fine_amount} TL ({days_overdue} gün) - User: {user_id}, Book: {book_id}")
+                        f"Gecikme cezası hesaplandı: {fine_amount} TL ({minutes_overdue} gün) - User: {user_id}, Book: {book_id}")
 
             # Tek transaction içinde kaydet
             logger.info(f"Veritabanı commit öncesi | active_borrow: {active_borrow}, fine_amount: {fine_amount}")
@@ -246,11 +266,17 @@ class LoanService:
                     due_date = due_date.replace(tzinfo=timezone.utc)
 
                 if now > due_date:
-                    days_overdue = (now - due_date).days
-                    current_fine = days_overdue * daily_fee
+                    # days_overdue = (now - due_date).days
+                    # current_fine = days_overdue * daily_fee
+
+                    # Hızlıca ceza sistemini görmek için
+                    seconds_overdue = (now - due_date).total_seconds()
+                    minutes_overdue = int(seconds_overdue / 60)
+                    current_fine = minutes_overdue * daily_fee  # Her dakika 50 TL
                     # Mevcut cezadan büyükse güncelle
                     if current_fine > fine:
                         fine = current_fine
+
 
             total += fine
 
@@ -277,12 +303,16 @@ class LoanService:
                     # Eğer timezone bilgisi yoksa UTC olarak kabul et
                     due_date = due_date.replace(tzinfo=timezone.utc)
 
+                # if now > due_date:
+                #     delta = now - due_date
+                #     days_overdue = delta.days
+                #
+                #     # Dinamik hesaplama
+                #     current_fine = days_overdue * daily_fee
                 if now > due_date:
                     delta = now - due_date
-                    days_overdue = delta.days
-
-                    # Dinamik hesaplama
-                    current_fine = days_overdue * daily_fee
+                    minutes_overdue = int(delta.total_seconds() / 60)
+                    current_fine = minutes_overdue * daily_fee
 
             results.append({
                 'borrow': borrow,

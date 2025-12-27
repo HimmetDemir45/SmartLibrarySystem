@@ -340,6 +340,7 @@
                                             <span class="badge badge-warning">Onay Bekliyor</span>
                                             <form action="{{ url_for('admin_bp.approve_user', user_id=user.id) }}"
                                                   method="POST" style="display:inline;">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                                 <button type="submit" class="btn btn-sm btn-success ml-1"
                                                         title="Kullanıcıyı Onayla">
                                                     <i class="fas fa-check"></i>
@@ -355,8 +356,8 @@
                                                     title="Bakiye Düzenle">
                                                 <i class="fas fa-wallet"></i>
                                             </button>
-                                            <form action="{{ url_for('admin_bp.forgive_fines', user_id=user.id) }}"
-                                                  method="POST" style="display:inline;">
+                                            <form action="{{ url_for('admin_bp.forgive_fines', user_id=user.id) }}" method="POST" style="display:inline;">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                                 <button type="submit" class="btn btn-sm btn-outline-danger"
                                                         onclick="return confirm('Bu kullanıcının TÜM cezalarını silmek istediğinize emin misiniz?');"
                                                         title="Ceza Affet">
@@ -450,8 +451,7 @@
                                             maxlength="12",
                                             inputmode="numeric",
                                             oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                                            )
-                                    }}
+                                            ) }}
                                 </div>
                             </div>
                         </div>
@@ -503,6 +503,7 @@
                             <strong>Mevcut Bakiye:</strong> {{ user.budget }} TL
                         </div>
                         <form action="{{ url_for('admin_bp.update_budget', user_id=user.id) }}" method="POST">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                             <div class="form-group">
                                 <label>İşlem Türü</label>
                                 <select name="operation" class="form-control" required>

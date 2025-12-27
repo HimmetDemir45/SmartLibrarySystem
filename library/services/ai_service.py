@@ -122,10 +122,24 @@ Kullanıcı Bilgileri:
             for book in recent_books:
                 author_name = book.author.name if book.author else 'Bilinmiyor'
                 category_name = book.category.name if book.category else 'Genel'
-                books_list.append(f"- {book.name} (Yazar: {author_name}, Kategori: {category_name})")
 
-            context = f"Kütüphanedeki Kitaplar (Toplam {len(books_list)} kitap gösteriliyor):\n"
+                # BURASI YENİ: Kitabın açıklamasını veritabanından çekip AI'ya veriyoruz
+                description = book.description if book.description else "Bu kitap hakkında detaylı açıklama girilmemiş."
+
+                # AI'ya gidecek metni zenginleştiriyoruz
+                book_info = f"""
+Kitap: {book.name}
+Yazar: {author_name}
+Kategori: {category_name}
+Özet ve Konu: {description}
+-------------------"""
+            
+            books_list.append(f"- {book.name} (Yazar: {author_name}, Kategori: {category_name})\n  Konu: {description}")
+
+            context = f"Kütüphanemizdeki Mevcut Kitaplar ve Detayları:\n"
             context += "\n".join(books_list)
+
+
 
             return context
         except Exception as e:
@@ -151,10 +165,15 @@ Kullanıcı Bilgileri:
 
         if is_library_question:
             # Kütüphane soruları için detaylı sistem prompt
-            system_prompt = """Sen bir kütüphane asistanısın. Kullanıcılara kitaplar, yazarlar ve okuma önerileri hakkında yardımcı oluyorsun. 
-Türkçe yanıt ver. Kısa, öz ve samimi bir dil kullan. Kitaplar hakkında bilgi verirken yazar ve kategori bilgilerini de belirt.
-ÖNEMLİ: Yukarıdaki kitap listesi her zaman günceldir ve yeni eklenen kitapları içerir.
-Bu bir kütüphane sorusudur, detaylı ve kapsamlı cevap ver."""
+            system_prompt = """Sen 'Himmet Kütüphanesi'nin uzman asistanısın. Adın 'Bilge'.
+                Kuralların:
+                1. Sadece Türkçe cevap ver.
+                2. Kullanıcıya her zaman ismiyle veya 'Sayın Üye' diyerek hitap et.
+                3. Kitap önerirken sadece sana verilen listedeki kitapları kullan, uydurma.
+                4. Eğer sorunun cevabı kütüphane verilerinde yoksa, dürüstçe 'Bu konuda bilgim yok' de.
+                5. Cevapların kısa, teşvik edici ve nazik olsun.
+                6. Asla kod, SQL sorgusu veya teknik detay paylaşma.
+            """
 
             library_context = AIService._get_library_context()
             # Güncel kitapları çek (yeni eklenenler dahil)
@@ -257,8 +276,11 @@ Bu kitap hakkında detaylı bilgi ver. Kitabın konusu, yazarı hakkında bilgi 
     @staticmethod
     def get_author_info(author_name):
         """Yazar hakkında bilgi verir"""
-        system_prompt = """Sen bir kütüphane asistanısın. Yazarlar hakkında bilgi veriyorsun.
-Türkçe yanıt ver. Yazarın hayatı, eserleri ve edebi tarzı hakkında bilgi ver."""
+        system_prompt = """Sen Türk edebiyatına ve dünya klasiklerine hakim uzman bir kütüphanecisin.
+        Sana sorulan yazarları veritabanındaki kitaplarla eşleştir.
+        ANCAK, eğer veritabanında yazarın biyografisi yoksa, KENDİ GENEL KÜLTÜRÜNÜ KULLAN.
+        Yaşar Kemal, Orhan Pamuk, Sabahattin Ali gibi önemli yazarlar sorulduğunda, veritabanına bağlı kalmadan hayatları ve edebi kişilikleri hakkında detaylı, uzun ve doyurucu bilgi ver.
+        Cevabın Türkçe, ansiklopedik ama samimi olsun"""
 
         # Yazarı bul
         from library.repositories.author_repository import AuthorRepository

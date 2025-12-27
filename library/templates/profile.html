@@ -40,6 +40,7 @@
                             <p class="text-warning small"><i class="fas fa-exclamation-triangle"></i> Lütfen gecikmiş kitaplarınızı iade edin.</p>
 
                             <form action="{{ url_for('book_bp.pay_fines') }}" method="POST">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                 <button type="submit" class="btn btn-outline-danger btn-sm mt-2" onclick="return confirm('Borcunuzu bakiyenizden ödemek istiyor musunuz?')">
                                     <i class="fas fa-credit-card"></i> Borcu Öde
                                 </button>

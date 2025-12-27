@@ -4,7 +4,6 @@ Bu script default.jpg'i tüm kitaplara kopyalar veya özel resimler ekler
 """
 
 import os
-import shutil
 from library import app, db
 from library.models import Book
 
