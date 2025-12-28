@@ -30,3 +30,11 @@ class Config:
     # Ollama AI Ayarları
     OLLAMA_BASE_URL = os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')
     OLLAMA_MODEL = os.getenv('OLLAMA_MODEL', 'deepseek-r1:8b')
+
+    # E-POSTA AYARLARI
+    MAIL_SERVER = 'smtp.googlemail.com'  # Gmail kullanıyorsan
+    MAIL_PORT = 587
+    MAIL_USE_TLS = True
+    # Güvenlik için bu bilgileri .env dosyasından çekmelisin
+    MAIL_USERNAME = os.getenv('EMAIL_USER')
+    MAIL_PASSWORD = os.getenv('EMAIL_PASS')

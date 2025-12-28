@@ -35,18 +35,18 @@ def generate_book_descriptions():
 
                 # AI için prompt
                 prompt = f"""
-Kitap Adı: {book.name}
-Yazarı: {author_name}
-
-GÖREV:
-Bu kitap için kütüphane kataloğunda kullanılacak profesyonel, edebi bir tanıtım metni yaz.
-
-KURALLAR:
-1. Türkçe yaz.
-2. Spoiler verme.
-3. ÇOK UZUN YAZMA. En fazla 150 kelime olsun.
-4. Doğrudan tanıtıma gir.
-"""
+                    Kitap Adı: {book.name}
+                    Yazarı: {author_name}
+                    
+                    GÖREV:
+                    Bu kitap için kütüphane kataloğunda kullanılacak profesyonel, edebi bir tanıtım metni yaz.
+                    
+                    KURALLAR:
+                    1. Türkçe yaz.
+                    2. Spoiler verme.
+                    3. ÇOK UZUN YAZMA. En fazla 150 kelime olsun.
+                    4. Doğrudan tanıtıma gir.
+                    """
                 system_prompt = "Sen öz ve etkileyici yazan bir kütüphane uzmanısın."
 
                 # AI servisini çağır

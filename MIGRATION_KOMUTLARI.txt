@@ -2,6 +2,8 @@
 MIGRATION ÇALIŞTIRMA KOMUTLARI
 ===========================================
 
+Controller -> Service -> Model
+
 SEÇENEK 1: VERİTABANINI YENİDEN OLUŞTUR (ÖNERİLEN)
 ---------------------------------------------------
 Eğer veritabanında önemli veri yoksa, en kolay yol:

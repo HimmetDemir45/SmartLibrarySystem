@@ -45,6 +45,12 @@
 
                     {{ form.submit(class="btn btn-login btn-block") }}
 
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('auth_bp.reset_request') }}" class="text-info small" style="text-decoration: none;">
+                            <i class="fas fa-key mr-1"></i>Şifremi Unuttum?
+                        </a>
+                    </div>
+
                 </form>
 
                 <div class="text-center mt-4">

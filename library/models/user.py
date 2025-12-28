@@ -1,5 +1,8 @@
 from library import db, login_manager, bcrypt
 from flask_login import UserMixin
+# --- YENİ EKLENEN İMPORTLAR ---
+from flask import current_app
+from itsdangerous import URLSafeTimedSerializer as Serializer
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -15,12 +18,9 @@ class User(db.Model, UserMixin):
     is_admin = db.Column(db.Boolean, default=False)
     budget = db.Column(db.Integer(), nullable=False, default=0)
     is_approved = db.Column(db.Boolean, default=False)
-    # İlişkiler (backref Borrow modelinde tanımlı)
-    # borrows relationship'i Borrow modelindeki backref ile oluşturuluyor
 
     @property
     def password(self):
-        # Şifrenin okunabilir bir özellik olmadığını belirtiyoruz
         raise AttributeError('password özelliği okunamayan bir alandır!')
 
     @password.setter
@@ -30,6 +30,22 @@ class User(db.Model, UserMixin):
     def check_password_correction(self, attempted_password):
         return bcrypt.check_password_hash(self.password_hash, attempted_password)
 
+    # --- EKSİK OLAN FONKSİYONLAR BURADA ---
+
+    def get_reset_token(self):
+        # Token üretir (Şifre sıfırlama linki için)
+        s = Serializer(current_app.config['SECRET_KEY'])
+        return s.dumps({'user_id': self.id})
+
+    @staticmethod
+    def verify_reset_token(token, expires_sec=1800):
+        # Token doğrular ve kullanıcıyı bulur
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            user_id = s.loads(token, max_age=expires_sec)['user_id']
+        except:
+            return None
+        return User.query.get(user_id)
+
     def __repr__(self):
         return f'<User {self.username}>'
-

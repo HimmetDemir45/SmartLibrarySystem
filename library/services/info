@@ -1,0 +1,6 @@
+(İş Mantığı - Beyin): Projenin en önemli kısmı.
+Kurallar burada işlenir.
+
+loan_service.py: "Kullanıcının cezası var mı?",
+"Kitap stokta mı?",
+"Kullanıcı onaylı mı?" gibi kontrolleri yapıp ödünç işlemini yönetir.

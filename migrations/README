@@ -1,1 +1,7 @@
 Single-database configuration for Flask.
+
+Ne İşe Yarar: Örneğin, User tablosuna sonradan phone_number diye bir alan ekledin.
+Bu değişikliği veritabanını silip baştan kurmadan,
+mevcut verileri koruyarak uygulamak için buradaki "versiyon dosyaları" kullanılır.
+
+"Geri Al" (Downgrade) işlemi yapabilmeni sağlar.

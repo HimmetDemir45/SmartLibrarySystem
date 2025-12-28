@@ -12,3 +12,5 @@ WTForms-SQLAlchemy>=0.4.1
 
 
 sqlalchemy
+flask-mail
+itsdangerous

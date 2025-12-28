@@ -57,12 +57,12 @@ class AIService:
                 return ""
 
             context = f"""
-Kütüphane İstatistikleri:
-- Toplam Kitap: {stats.get('total_books', 0)}
-- Müsait Kitap: {stats.get('available_books', 0)}
-- Ödünç Alınan: {stats.get('borrowed_books', 0)}
-- Toplam Üye: {stats.get('total_users', 0)}
-"""
+                Kütüphane İstatistikleri:
+                - Toplam Kitap: {stats.get('total_books', 0)}
+                - Müsait Kitap: {stats.get('available_books', 0)}
+                - Ödünç Alınan: {stats.get('borrowed_books', 0)}
+                - Toplam Üye: {stats.get('total_users', 0)}
+                """
             return context
         except Exception as e:
             logger.error(f"Kütüphane bağlamı alınamadı: {str(e)}")
@@ -80,11 +80,11 @@ Kütüphane İstatistikleri:
             active_book_names = [book.name for book in active_books[:5]]
 
             context = f"""
-Kullanıcı Bilgileri:
-- Toplam Ödünç: {user_stats.get('total_borrows', 0)}
-- Aktif Kitap: {user_stats.get('active_borrows', 0)}
-- Şu an okunan kitaplar: {', '.join(active_book_names) if active_book_names else 'Yok'}
-"""
+                Kullanıcı Bilgileri:
+                - Toplam Ödünç: {user_stats.get('total_borrows', 0)}
+                - Aktif Kitap: {user_stats.get('active_borrows', 0)}
+                - Şu an okunan kitaplar: {', '.join(active_book_names) if active_book_names else 'Yok'}
+                """
 
             if user_stats.get('favorite_categories'):
                 categories = ', '.join([cat['name'] for cat in user_stats['favorite_categories']])
@@ -128,11 +128,11 @@ Kullanıcı Bilgileri:
 
                 # AI'ya gidecek metni zenginleştiriyoruz
                 book_info = f"""
-Kitap: {book.name}
-Yazar: {author_name}
-Kategori: {category_name}
-Özet ve Konu: {description}
--------------------"""
+                    Kitap: {book.name}
+                    Yazar: {author_name}
+                    Kategori: {category_name}
+                    Özet ve Konu: {description}
+                    -------------------"""
             
             books_list.append(f"- {book.name} (Yazar: {author_name}, Kategori: {category_name})\n  Konu: {description}")
 

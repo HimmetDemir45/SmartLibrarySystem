@@ -9,7 +9,6 @@ class BorrowRepository(BaseRepository):
 
     def get_active_borrow(self, user_id, book_id):
         """Bir kullanıcının belirli bir kitap için aktif (iade edilmemiş) kaydını bulur."""
-        # Artık relationship'ler açıkça tanımlı, class-bound attribute kullanabiliriz
         return self.model.query.options(
             joinedload(Borrow.book).joinedload(Book.author),
             joinedload(Borrow.book).joinedload(Book.category),

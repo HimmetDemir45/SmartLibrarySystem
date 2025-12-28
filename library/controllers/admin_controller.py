@@ -282,7 +282,7 @@ def update_budget(user_id):
             return redirect(url_for('admin_bp.admin_page'))
 
         # Maksimum değer kontrolü (güvenlik için)
-        MAX_BUDGET = 1000  # 1000 TL maksimum
+        MAX_BUDGET = 100000  # 100000 TL maksimum
         if amount > MAX_BUDGET:
             flash(f"Maksimum bakiye limiti aşıldı (Max: {MAX_BUDGET} TL)", "danger")
             return redirect(url_for('admin_bp.admin_page'))

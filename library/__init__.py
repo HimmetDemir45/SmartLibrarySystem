@@ -8,7 +8,7 @@ from config import Config
 import logging
 from logging.handlers import RotatingFileHandler
 import os
-
+from flask_mail import Mail
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -19,7 +19,7 @@ csrf = CSRFProtect(app)
 login_manager.login_view = "auth_bp.login_page"
 login_manager.login_message_category = "info"
 login_manager.login_message = ""
-
+mail = Mail(app)
 migrate = Migrate(app, db) #  (Migrate'i başlatıyoruz)
 
 # Logging konfigürasyonu

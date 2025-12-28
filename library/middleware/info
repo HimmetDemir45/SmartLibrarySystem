@@ -1,0 +1,7 @@
+(Ara Katman - Güvenlik Görevlisi):
+
+Görevi: İstek, Controller'a ulaşmadan önce veya kullanıcıya yanıt dönmeden önce araya giren kodlardır.
+
+Ne Yapar: Örneğin,
+rate_limiter.py dosyası burada bulunur ve bir kullanıcının çok hızlı
+arka arkaya istek atıp atmadığını (saldırı olup olmadığını) kontrol eder.

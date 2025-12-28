@@ -2,8 +2,6 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, TextAreaField
 from wtforms.validators import Length, EqualTo, Email, DataRequired, ValidationError,Regexp
 from flask_wtf.file import FileField, FileAllowed
-from wtforms import TextAreaField
-
 from library.models import User, Author, Category
 from wtforms_sqlalchemy.fields import QuerySelectField
 
@@ -96,3 +94,22 @@ class EditBookForm(FlaskForm):
     description = TextAreaField(label='Açıklama:', validators=[DataRequired()])
     image = FileField('Kitap Kapağı', validators=[FileAllowed(['jpg', 'png', 'jpeg'])])
     submit = SubmitField(label='Değişiklikleri Kaydet')
+
+
+# 1. E-posta İsteme Formu
+class RequestResetForm(FlaskForm):
+    email = StringField('E-posta Adresi',
+                        validators=[DataRequired(), Email()])
+    submit = SubmitField('Şifre Sıfırlama Linki Gönder')
+
+    def validate_email(self, email):
+        user = User.query.filter_by(email_address=email.data).first()
+        if user is None:
+            raise ValidationError('Bu e-posta adresiyle kayıtlı bir hesap bulunamadı.')
+
+# 2. Yeni Şifre Belirleme Formu
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField('Yeni Şifre', validators=[DataRequired()])
+    confirm_password = PasswordField('Şifreyi Onayla',
+                                     validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Şifreyi Güncelle')

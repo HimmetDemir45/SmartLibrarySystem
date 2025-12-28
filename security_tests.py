@@ -4,7 +4,6 @@ Bu dosya sistemin güvenlik açıklarını test eder.
 """
 
 import requests
-import json
 import time
 from urllib.parse import quote
 

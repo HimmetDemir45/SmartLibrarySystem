@@ -1,0 +1,3 @@
+Veritabanına doğrudan sorgu atan kısımdır.
+"Bana şu kullanıcıyı bul" veya "Şu kitabı kaydet" komutları buradadır.
+services katmanı veritabanına direkt dokunmaz, burayı kullanır.
